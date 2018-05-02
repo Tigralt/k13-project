@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace Base;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,7 +32,8 @@ class Controller {
         // Generate values
         $values = array();
         foreach ($this->members as $member)
-            $values[$member] = $request[$member];
+            if (array_key_exists($member, $request))
+                $values[$member] = $request[$member];
         
         // Insert
         $this->app['db']->insert($this->table, $values);
@@ -73,7 +74,8 @@ class Controller {
         // Generate values
         $values = array();
         foreach ($this->members as $member)
-            $values[$member] = $request[$member];
+            if (array_key_exists($member, $request))
+                $values[$member] = $request[$member];
         
         // Update
         $this->app['db']->update($this->table, $values, array("id" => $id));

@@ -2,7 +2,7 @@
 namespace App;
 
 use Silex\Application;
-use App\Controller;
+use Base\Controller;
 
 class QuestionController extends Controller {
     function __construct(Application $app, $base) {
@@ -14,7 +14,7 @@ class QuestionController extends Controller {
             array("question/{id}", "put", "update"),
             array("question/{id}", "delete", "delete"),
         );
-        $this->members = array("text");
+        $this->members = array("text", "quizz");
 
         parent::__construct($app, $base, $this->table, $this->api, $this->members);
     }

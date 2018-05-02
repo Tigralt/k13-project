@@ -5,14 +5,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use App\QuestionController;
+use Base\Loader;
 
 $base = "/api/";
-$q = new QuestionController($app, $base);
-
+$loader = new Loader($app, $base);
 
 // Documentation
-$app->get($base, function () use ($app, $q) {
+$app->get($base, function () use ($app) {
     $documentation = array(
         "objects" => array(
             "question" => array("text"),
