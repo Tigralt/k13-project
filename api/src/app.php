@@ -7,6 +7,8 @@ use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\HttpFragmentServiceProvider;
 use Silex\Provider\RoutingServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 $app = new Application();
 $app->register(new ServiceControllerServiceProvider());
@@ -23,5 +25,10 @@ $app->register(new DoctrineServiceProvider(), array(
         'password' => 'root',
     )
 ));
+
+// CORS
+$app->after(function (Request $request, Response $response) {
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+});
 
 return $app;
