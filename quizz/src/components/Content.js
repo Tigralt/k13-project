@@ -32,7 +32,9 @@ class Content extends Component {
         // Firewall
         const session = JSON.parse(localStorage.getItem("session"));
         const now = (new Date()).getTime();
-        if (session == null || session.timeout < now) {
+        const current = window.location.pathname;
+
+        if (current != "/" && (session == null || session.timeout < now)) {
             localStorage.clear();
             window.location = "/";
         }
