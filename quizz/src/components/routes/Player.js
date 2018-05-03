@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Label, Input, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
 
 class Player extends Component {
@@ -25,7 +25,7 @@ class Player extends Component {
     handleApi(players) {
         let player = null;
         for (var key in players) {
-            if (this.username == players[key].name) {
+            if (this.username === players[key].name) {
                 player = players[key];
                 break;
             }
@@ -70,7 +70,7 @@ class Player extends Component {
                             <FormGroup>
                                 <Input type="text" name="name" placeholder="Nom d'utilisateur" />
                             </FormGroup>
-                            <Button>Sauvegarder</Button>
+                            <Button>Se connecter</Button>
                         </Form>
                     </Col>
                 </Row>

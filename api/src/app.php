@@ -29,6 +29,7 @@ $app->register(new DoctrineServiceProvider(), array(
 // CORS
 $app->after(function (Request $request, Response $response) {
     $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
 });
 
 return $app;

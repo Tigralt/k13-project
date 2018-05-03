@@ -10,6 +10,7 @@ class AnswerController extends Controller {
         $this->api = array(
             array("answer/", "post", "create"),
             array("answer/", "get", "readAll"),
+            array("answer/{member}/{value}", "get", "readAllFrom"),
             array("answer/{id}", "get", "read"),
             array("answer/{id}", "put", "update"),
             array("answer/{id}", "delete", "delete"),

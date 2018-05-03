@@ -10,6 +10,7 @@ class PlayerController extends Controller {
         $this->api = array(
             array("player/", "post", "create"),
             array("player/", "get", "readAll"),
+            array("player/{member}/{value}", "get", "readAllFrom"),
             array("player/{id}", "get", "read"),
             array("player/{id}", "put", "update"),
             array("player/{id}", "delete", "delete"),

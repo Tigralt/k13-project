@@ -10,6 +10,7 @@ class RoomController extends Controller {
         $this->api = array(
             array("room/", "post", "create"),
             array("room/", "get", "readAll"),
+            array("room/{member}/{value}", "get", "readAllFrom"),
             array("room/{id}", "get", "read"),
             array("room/{id}", "delete", "delete"),
         );

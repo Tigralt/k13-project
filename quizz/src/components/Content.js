@@ -5,11 +5,12 @@ import {
     Container,
     Row,
     Col,
-    Button
 } from 'reactstrap';
 
 import Player from './routes/Player';
 import Home from './routes/Home';
+import Room from './routes/Room';
+import Create from './routes/Create';
 
 class Content extends Component {
     constructor(props) {
@@ -18,6 +19,16 @@ class Content extends Component {
         this.state = { loading: false }
         this.loading = this.loading.bind(this);
         this.finished = this.finished.bind(this);
+
+        // Firewall
+        this.session = JSON.parse(localStorage.getItem("session"));
+        const now = (new Date()).getTime();
+        const current = window.location.pathname;
+
+        if (current !== "/" && (this.session == null || this.session.timeout < now)) {
+            localStorage.clear();
+            window.location = "/";
+        }
     }
 
     loading() {
@@ -29,16 +40,6 @@ class Content extends Component {
     }
 
     render() {
-        // Firewall
-        const session = JSON.parse(localStorage.getItem("session"));
-        const now = (new Date()).getTime();
-        const current = window.location.pathname;
-
-        if (current != "/" && (session == null || session.timeout < now)) {
-            localStorage.clear();
-            window.location = "/";
-        }
-
         if (this.state.loading)
             return (
                 <div>
@@ -54,11 +55,13 @@ class Content extends Component {
 
         return (
             <div>
-                <Container className="pt-4">
+                <Container className="pt-4 pb-4">
                     <Router>
                         <div>
                             <Route exact path="/" render={(props) => (<Player {...props} loading={this.loading} finished={this.finished}/>)}/>
                             <Route path="/home" render={(props) => (<Home {...props} loading={this.loading} finished={this.finished}/>)}/>
+                            <Route path="/join-room" render={(props) => (<Room {...props} loading={this.loading} finished={this.finished}/>)}/>
+                            <Route path="/create-quizz" render={(props) => (<Create {...props} loading={this.loading} finished={this.finished}/>)}/>
                         </div>
                     </Router>
                 </Container>
@@ -66,5 +69,4 @@ class Content extends Component {
         );
     }
 }
-
 export default Content;

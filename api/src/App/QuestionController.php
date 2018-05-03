@@ -10,6 +10,7 @@ class QuestionController extends Controller {
         $this->api = array(
             array("question/", "post", "create"),
             array("question/", "get", "readAll"),
+            array("question/{member}/{value}", "get", "readAllFrom"),
             array("question/{id}", "get", "read"),
             array("question/{id}", "put", "update"),
             array("question/{id}", "delete", "delete"),
