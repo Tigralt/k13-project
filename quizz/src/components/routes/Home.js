@@ -4,6 +4,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
 import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
+import faTv from '@fortawesome/fontawesome-free-solid/faTv'
 import {
     Row,
     Col,
@@ -51,12 +52,12 @@ class Home extends Component {
                 </Row>
                 <Row>
                     <Col sm="12" md={{ size: 6, offset: 3 }} className="text-center">
-                        <Link to="/join-room"><Button color="primary" size="lg" block>Rejoindre un quizz</Button></Link>
+                        <Button tag={Link} to="/join-room" color="primary" size="lg" block>Rejoindre un quizz</Button>
                     </Col>
                 </Row>
                 <Row>
                     <Col sm="12" md={{ size: 6, offset: 3 }} className="text-center pt-3">
-                        <Link to="/create-quizz"><Button color="secondary" size="lg" block>Créer un quizz</Button></Link>
+                        <Button tag={Link} to="/create-quizz" color="secondary" size="lg" block>Créer un quizz</Button>
                     </Col>
                 </Row>
             </div>
@@ -78,7 +79,8 @@ class Home extends Component {
                                             <td className="align-middle">{quizz.name}</td>
                                             <td>
                                                 <ButtonGroup size="sm">
-                                                    <Button><FontAwesomeIcon icon={faPlay} /></Button>
+                                                    <Button tag={Link} to={"/screen/"+quizz.id}><FontAwesomeIcon icon={faTv} /></Button>
+                                                    <Button tag={Link} to={"/room/"+quizz.id}><FontAwesomeIcon icon={faPlay} /></Button>
                                                     <Button tag={Link} to={"/edit/"+quizz.id}><FontAwesomeIcon icon={faEdit} /></Button>
                                                     <Button onClick={() => this.handleDelete(quizz.id)}><FontAwesomeIcon icon={faTrash} /></Button>
                                                 </ButtonGroup>

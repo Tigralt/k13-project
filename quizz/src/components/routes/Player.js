@@ -65,7 +65,7 @@ class Player extends Component {
         return (
             <div>
                 <Row>
-                    <Col sm={{ size: 6, offset: 3 }}>
+                    <Col sm="12" md={{ size: 6, offset: 3 }}>
                         <Form onSubmit={this.handleSubmit}>
                             <FormGroup>
                                 <Input type="text" name="name" placeholder="Nom d'utilisateur" />

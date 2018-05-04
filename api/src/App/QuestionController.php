@@ -15,7 +15,7 @@ class QuestionController extends Controller {
             array("question/{id}", "put", "update"),
             array("question/{id}", "delete", "delete"),
         );
-        $this->members = array("text", "quizz");
+        $this->members = array("text", "question", "time", "quizz");
 
         parent::__construct($app, $base, $this->table, $this->api, $this->members);
     }

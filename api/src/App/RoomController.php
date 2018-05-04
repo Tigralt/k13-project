@@ -12,9 +12,10 @@ class RoomController extends Controller {
             array("room/", "get", "readAll"),
             array("room/{member}/{value}", "get", "readAllFrom"),
             array("room/{id}", "get", "read"),
+            array("room/{id}", "put", "update"),
             array("room/{id}", "delete", "delete"),
         );
-        $this->members = array("password", "quizz");
+        $this->members = array("password", "step", "is_playing", "quizz");
 
         parent::__construct($app, $base, $this->table, $this->api, $this->members);
     }

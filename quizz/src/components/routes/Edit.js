@@ -56,9 +56,10 @@ class Edit extends Component {
             const inputs = form.getElementsByTagName("INPUT");
 
             inputs[0].setAttribute("value", question.text);
+            inputs[1].setAttribute("value", question.time);
             for(let i=0; i<4; i++) {
-                inputs[i*2+1].setAttribute("value", question.answers[i].text);
-                inputs[(i+1)*2].setAttribute("value", question.answers[i].points);
+                inputs[(i+1)*2].setAttribute("value", question.answers[i].text);
+                inputs[(i+1)*2+1].setAttribute("value", question.answers[i].points);
             }
         });
     }
@@ -75,6 +76,7 @@ class Edit extends Component {
 
         let question = {
             text: values[0],
+            time: values[1],
             quizz: this.state.quizz.id
         };
 
@@ -90,8 +92,8 @@ class Edit extends Component {
                 .then((question) => {
                     for (let i=0; i<4; i++) {
                         let answer = {
-                            text: values[1+i*2],
-                            points: values[(i+1)*2],
+                            text: values[(i+1)*2],
+                            points: values[(i+1)*2+1],
                             question: question.id
                         };
                         
@@ -117,8 +119,8 @@ class Edit extends Component {
                 .then((question) => {
                     for (let i=0; i<4; i++) {
                         let answer = {
-                            text: values[1+i*2],
-                            points: values[(i+1)*2],
+                            text: values[(i+1)*2],
+                            points: values[(i+1)*2+1],
                             question: question.id
                         };
                         
@@ -148,6 +150,11 @@ class Edit extends Component {
                                 <Form onSubmit={this.handleSubmit} id="quizzform">
                                     <FormGroup>
                                         <Input type="text" name="question[name]" placeholder="Question" />
+                                    </FormGroup>
+
+                                    <hr />
+                                    <FormGroup>
+                                        <Input type="number" name="question[time]" placeholder="Temps en secondes" />
                                     </FormGroup>
 
                                     <hr />

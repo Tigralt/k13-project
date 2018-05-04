@@ -8,6 +8,7 @@ import Home from './routes/Home';
 import Room from './routes/Room';
 import Create from './routes/Create';
 import Edit from './routes/Edit';
+import Screen from './routes/Screen';
 
 class Content extends Component {
     constructor(props) {
@@ -42,7 +43,7 @@ class Content extends Component {
                 <div>
                     <Container className="pt-4">
                         <Row>
-                            <Col sm={{ size: 6, offset: 3 }}>
+                            <Col sm="12" md={{ size: 6, offset: 3 }}>
                                 <ReactLoading type="spin" color="#333333" className="mx-auto"/>
                             </Col>
                         </Row>
@@ -60,6 +61,8 @@ class Content extends Component {
                             <Route path="/join-room" render={(props) => (<Room {...props} loading={this.loading} finished={this.finished}/>)}/>
                             <Route path="/create-quizz" render={(props) => (<Create {...props} loading={this.loading} finished={this.finished}/>)}/>
                             <Route path="/edit/:id" render={(props) => (<Edit {...props} loading={this.loading} finished={this.finished}/>)}/>
+                            <Route path="/room/:id" render={(props) => (<Room {...props} loading={this.loading} finished={this.finished}/>)}/>
+                            <Route path="/screen/:id" render={(props) => (<Screen {...props} loading={this.loading} finished={this.finished}/>)}/>
                         </div>
                     </Router>
                 </Container>

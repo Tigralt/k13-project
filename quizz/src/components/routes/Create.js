@@ -87,6 +87,7 @@ class Create extends Component {
         const values = [];
         for (let value of data.values())
             values.push(value);
+        console.log(values);
 
         this.addQuestionAndAnswer(values);
         form.reset();
@@ -95,6 +96,7 @@ class Create extends Component {
     addQuestionAndAnswer(values) {
         let question = {
             text: values[0],
+            time: values[1],
             quizz: this.state.quizz.id
         };
         this.pushQuestion(question);
@@ -110,8 +112,8 @@ class Create extends Component {
             .then((question) => {
                 for (let i=0; i<4; i++) {
                     let answer = {
-                        text: values[1+i*2],
-                        points: values[(i+1)*2],
+                        text: values[(i+1)*2],
+                        points: values[(i+1)*2+1],
                         question: question.id
                     };
                     this.pushAnswer(answer);
@@ -157,6 +159,11 @@ class Create extends Component {
                                 <Form onSubmit={this.handleSubmit} id="quizzform">
                                     <FormGroup>
                                         <Input type="text" name="question[name]" placeholder="Question" />
+                                    </FormGroup>
+
+                                    <hr />
+                                    <FormGroup>
+                                        <Input type="number" name="question[time]" placeholder="Temps en secondes" />
                                     </FormGroup>
 
                                     <hr />
