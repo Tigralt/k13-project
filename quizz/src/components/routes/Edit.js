@@ -144,7 +144,7 @@ class Edit extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h1>{ this.state.quizz.name }</h1>
+                                <h1>{ this.state.quizz.name } <Button onClick={() => {this.setState({edit: null});}} size="sm" className="float-right">Retour</Button></h1>
                                 <Form onSubmit={this.handleSubmit} id="quizzform">
                                     <FormGroup>
                                         <Input type="text" name="question[name]" placeholder="Question" />
@@ -190,7 +190,7 @@ class Edit extends Component {
                 <div>
                     <Row>
                         <Col sm="12" md={{ size: 6, offset: 3 }} className="pt-4">
-                            <h1>{ this.state.quizz.name }</h1>
+                            <h1>{ this.state.quizz.name } <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h1>
                             <Table>
                                 <thead>
                                     <tr>

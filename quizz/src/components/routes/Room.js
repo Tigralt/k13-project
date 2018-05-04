@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 class Room extends Component {
     constructor(props) {
@@ -22,14 +23,15 @@ class Room extends Component {
             <div>
                 <Row>
                     <Col sm={{ size: 6, offset: 3 }}>
-                        <Form onSubmit={this.handleSubmit}>
+                        <Form onSubmit={this.handleSubmit} className="clearfix">
                             <FormGroup>
                                 <Input type="text" name="name" placeholder="Nom du quizz" />
                             </FormGroup>
                             <FormGroup>
                                 <Input type="password" name="password" placeholder="Mot de passe" />
                             </FormGroup>
-                            <Button>Rejoindre</Button>
+                            <Button className="float-left">Rejoindre</Button>
+                            <Button tag={Link} to="/home" className="float-right">Retour</Button>
                         </Form>
                     </Col>
                 </Row>

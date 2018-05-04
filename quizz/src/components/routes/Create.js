@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import { Button, Form, FormGroup, Input, Row, Col, FormFeedback } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
 
@@ -134,7 +135,7 @@ class Create extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h2>Créer un quizz</h2>
+                                <h2>Créer un quizz <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h2>
                                 <Form onSubmit={this.handleSubmit} id="quizzform">
                                     <FormGroup>
                                         <Input type="text" name="name" placeholder="Nom du quizz" invalid={this.state.invalid}/>
@@ -152,7 +153,7 @@ class Create extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h2>Créer un quizz</h2>
+                                <h2>Créer un quizz <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h2>
                                 <Form onSubmit={this.handleSubmit} id="quizzform">
                                     <FormGroup>
                                         <Input type="text" name="question[name]" placeholder="Question" />
