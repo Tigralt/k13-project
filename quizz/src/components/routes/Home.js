@@ -79,7 +79,7 @@ class Home extends Component {
                                             <td>
                                                 <ButtonGroup size="sm">
                                                     <Button><FontAwesomeIcon icon={faPlay} /></Button>
-                                                    <Button><FontAwesomeIcon icon={faEdit} /></Button>
+                                                    <Button tag={Link} to={"/edit/"+quizz.id}><FontAwesomeIcon icon={faEdit} /></Button>
                                                     <Button onClick={() => this.handleDelete(quizz.id)}><FontAwesomeIcon icon={faTrash} /></Button>
                                                 </ButtonGroup>
                                             </td>

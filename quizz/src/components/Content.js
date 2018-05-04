@@ -1,16 +1,13 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 import ReactLoading from 'react-loading';
-import {
-    Container,
-    Row,
-    Col,
-} from 'reactstrap';
+import { Container, Row, Col } from 'reactstrap';
 
 import Player from './routes/Player';
 import Home from './routes/Home';
 import Room from './routes/Room';
 import Create from './routes/Create';
+import Edit from './routes/Edit';
 
 class Content extends Component {
     constructor(props) {
@@ -62,6 +59,7 @@ class Content extends Component {
                             <Route path="/home" render={(props) => (<Home {...props} loading={this.loading} finished={this.finished}/>)}/>
                             <Route path="/join-room" render={(props) => (<Room {...props} loading={this.loading} finished={this.finished}/>)}/>
                             <Route path="/create-quizz" render={(props) => (<Create {...props} loading={this.loading} finished={this.finished}/>)}/>
+                            <Route path="/edit/:id" render={(props) => (<Edit {...props} loading={this.loading} finished={this.finished}/>)}/>
                         </div>
                     </Router>
                 </Container>
