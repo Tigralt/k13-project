@@ -32,6 +32,9 @@ class Screen extends Component {
     }
 
     handleTime() {
+        if (this.state.room === null)
+            return;
+
         if (this.state.room.is_playing == 1 && this.state.quizz.questions[this.state.room.step].time > this.state.time)
             this.setState({ time: this.state.time + 1 });
 
@@ -101,7 +104,7 @@ class Screen extends Component {
                 if (room.length == 0)
                     return;
 
-                if (this.state.room != null && room[0].step > this.state.room.step)
+                if (this.state.room != null && parseInt(room[0].step) > parseInt(this.state.room.step))
                     this.handleNext();
 
                 this.setState({
@@ -116,7 +119,7 @@ class Screen extends Component {
             return (
                 <div>
                     <Row>
-                        <Col sm="12">
+                        <Col xs="12">
                             <ReactLoading type="spin" color="#333333" className="mx-auto"/>
                         </Col>
                     </Row>
@@ -128,18 +131,18 @@ class Screen extends Component {
             var display = ["er"];
             for (let i=0; i<this.state.players.length; i++)
                 display.push("ème");
-            const final = this.state.room.step+1 >= this.state.quizz.questions.length? "final": "";
+            const final = parseInt(this.state.room.step)+1 >= this.state.quizz.questions.length? "final": "";
 
             return (
                 <div>
                     <Row>
-                        <Col sm="12">
+                        <Col xs="12">
                             <h1 className="text-center">Tableau des scores {final}</h1>
                         </Col>
                     </Row>
                     <Row>
                         {this.state.players.map((player, index) =>
-                        <Col sm="6">
+                        <Col xs="6">
                             <Alert color="dark" className="d-flex" style={{ lineHeight: "48px" }}>
                                 <big className="flex-fill text-left" style={{fontSize:"48px"}}>
                                     {index+1}{display[index]}
@@ -157,37 +160,37 @@ class Screen extends Component {
         return (
             <div>
                 <Row className="pt-4 pb-4">
-                    <Col sm="12" className="text-center">
+                    <Col xs="12" className="text-center">
                         <h1>{this.state.quizz.questions[this.state.room.step].text}</h1>
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-4">
-                    <Col sm="12" className="text-center">
+                    <Col xs="12" className="text-center">
                         <Progress animated color={this.state.color} value={Math.floor((this.state.time * 100) / this.state.quizz.questions[this.state.room.step].time)} />
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-3">
-                    <Col sm="6" className="text-center">
+                    <Col xs="6" className="text-center">
                         <Alert color="info" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>A</big>
                             <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[0].text}</div>
                         </Alert>
                     </Col>
-                    <Col sm="6" className="text-center">
+                    <Col xs="6" className="text-center">
                         <Alert color="success" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>C</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[1].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[2].text}</div>
                         </Alert>
                     </Col>
                 </Row>
                 <Row className="pb-4">
-                    <Col sm="6" className="text-center">
+                    <Col xs="6" className="text-center">
                         <Alert color="danger" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>B</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[2].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[1].text}</div>
                         </Alert>
                     </Col>
-                    <Col sm="6" className="text-center">
+                    <Col xs="6" className="text-center">
                         <Alert color="warning" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>D</big>
                             <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[3].text}</div>
