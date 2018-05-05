@@ -60,7 +60,9 @@ class Room extends Component {
                                 owner: owner,
                                 loading: false
                             }, () => {
-                                setInterval(() => { this.updateRoom(this.state.room.id); }, 500);
+                                this.setState({
+                                    update: setInterval(() => { this.updateRoom(this.state.room.id); }, 500)
+                                });
                             });
                         });
                 });
@@ -72,7 +74,8 @@ class Room extends Component {
             loading: 'id' in this.props.match.params,
             playing: false,
             end: false,
-            quizz: null
+            quizz: null,
+            update: null
         };
     }
 
@@ -88,12 +91,11 @@ class Room extends Component {
 
     handleQuit(event) {
         if (window.confirm("Voulez vous vraiment quitter le quizz ?")) {
-            this.props.loading();
+            this.setState({ loading: true });
             fetch('http://quizz.k13-project.com/api/room/' + this.state.room.id, {method: "DELETE"})
                 .then((response) => response.json())
                 .then((responseJson) => {
                     this.props.history.push("/home");
-                    this.props.finished();
                 });
         }
     }
@@ -124,6 +126,11 @@ class Room extends Component {
             body: formURLEncode({
                 "is_playing": 1
             })
+        }).then((response) => {
+            if (this.state.room.step+1 >= this.state.quizz.questions.length) {
+                clearInterval(this.state.update);
+                this.setState({ end: true });
+            }
         });
     }
 
@@ -159,12 +166,12 @@ class Room extends Component {
                     <div>
                         <Row>
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
-                                <Button color="success" size="lg" block disabled={this.state.room.is_playing == 1} onClick={this.handleStart}>Démarrer la question</Button>
+                                <Button color="success" size="lg" block disabled={this.state.room.is_playing == 1 || this.state.end} onClick={this.handleStart}>Démarrer la question</Button>
                             </Col>
                         </Row>
                         <Row className="pt-4">
                             <Col sm="12" md={{ size: 6, offset: 3 }}>
-                                <Button size="lg" block onClick={this.handleNext} disabled={this.state.room.step >= this.state.quizz.questions.length}>Question suivante</Button>
+                                <Button size="lg" block onClick={this.handleNext} disabled={this.state.room.step+1 >= this.state.quizz.questions.length}>Question suivante</Button>
                             </Col>
                         </Row>
 
