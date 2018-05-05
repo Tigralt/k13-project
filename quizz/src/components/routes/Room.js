@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
 
@@ -33,11 +33,11 @@ class Room extends Component {
                         .then((response) => response.json())
                         .then((room) => {
                             const session = JSON.parse(localStorage.getItem("session"));
-                            const owner = session.id == quizz.player;
+                            const owner = (session.id === quizz.player);
 
-                            if (room.length == 0 && !owner) 
+                            if (room.length === 0 && !owner) 
                                 return this.props.history.push("/join-room");
-                            else if (room.length == 0 && owner) {
+                            else if (room.length === 0 && owner) {
                                 return fetch('http://quizz.k13-project.com/api/room/', {
                                         method: 'POST',
                                         headers: {
@@ -140,7 +140,7 @@ class Room extends Component {
         fetch('http://quizz.k13-project.com/api/quizz/name/' + data.get("name"))
             .then((response) => response.json())
             .then((quizz) => {
-                if (quizz.length == 0)
+                if (quizz.length === 0)
                     return this.props.finished();
 
                 this.props.history.push("/room/" + quizz[0].id);
@@ -159,7 +159,7 @@ class Room extends Component {
                 "is_playing": 1
             })
         }).then((response) => {
-            if (parseInt(this.state.room.step)+1 >= this.state.quizz.questions.length) {
+            if (parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length) {
                 clearInterval(this.state.update);
                 this.setState({ end: true });
             }
@@ -174,7 +174,7 @@ class Room extends Component {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: formURLEncode({
-                "step": parseInt(this.state.room.step) + 1
+                "step": parseInt(this.state.room.step, 10) + 1
             })
         });
     }
@@ -190,7 +190,7 @@ class Room extends Component {
     }
 
     handleConfirm(event) {
-        if (this.state.selected.length == 0)
+        if (this.state.selected.length === 0)
             return;
         
         this.setState({ confirmed: true });
@@ -213,7 +213,7 @@ class Room extends Component {
     }
 
     handleUpdate(room) {
-        if (parseInt(room.step) > parseInt(this.state.room.step)) { // Next step
+        if (parseInt(room.step, 10) > parseInt(this.state.room.step, 10)) { // Next step
             this.setState({
                 confirmed: false,
                 selected: []
@@ -224,11 +224,11 @@ class Room extends Component {
     handleScore(player) {
         var score = 0;
         for(let selected of this.state.selected) {
-            score += parseInt(this.state.quizz.questions[parseInt(this.state.room.step)].answers[selected].points);
+            score += parseInt(this.state.quizz.questions[this.state.room.step].answers[selected].points, 10);
         }
         score = Math.floor(score / this.state.selected.length);
 
-        return score + parseInt(player.score);
+        return score + parseInt(player.score, 10);
     }
 
     render() {
@@ -250,12 +250,12 @@ class Room extends Component {
                     <div>
                         <Row>
                             <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button color="success" size="lg" block disabled={this.state.room.is_playing == 1 || this.state.end} onClick={this.handleStart}>Démarrer la question</Button>
+                                <Button color="success" size="lg" block disabled={this.state.room.is_playing === "1" || this.state.end} onClick={this.handleStart}>Démarrer la question</Button>
                             </Col>
                         </Row>
                         <Row className="pt-4">
                             <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button size="lg" block onClick={this.handleNext} disabled={parseInt(this.state.room.step)+1 >= this.state.quizz.questions.length}>Question suivante</Button>
+                                <Button size="lg" block onClick={this.handleNext} disabled={parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length}>Question suivante</Button>
                             </Col>
                         </Row>
 
@@ -272,18 +272,18 @@ class Room extends Component {
                 <div>
                     <Row className="pt-4 pb-4">
                         <Col xs="6">
-                            <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || this.state.room.is_playing == 0}>A</Button>
+                            <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>A</Button>
                         </Col>
                         <Col xs="6">
-                            <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || this.state.room.is_playing == 0}>C</Button>
+                            <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>C</Button>
                         </Col>
                     </Row>
                     <Row className="pt-1 pb-4">
                         <Col xs="6">
-                            <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || this.state.room.is_playing == 0}>B</Button>
+                            <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>B</Button>
                         </Col>
                         <Col xs="6">
-                            <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || this.state.room.is_playing == 0}>D</Button>
+                            <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>D</Button>
                         </Col>
                     </Row>
                     <Row className="pt-4 pb-4">

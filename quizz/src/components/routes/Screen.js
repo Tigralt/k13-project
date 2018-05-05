@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Input, Row, Col, Alert, Progress } from 'reactstrap';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Row, Col, Alert, Progress } from 'reactstrap';
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
 
@@ -35,7 +34,7 @@ class Screen extends Component {
         if (this.state.room === null)
             return;
 
-        if (this.state.room.is_playing == 1 && this.state.quizz.questions[this.state.room.step].time > this.state.time)
+        if (parseInt(this.state.room.is_playing, 10) === 1 && this.state.quizz.questions[this.state.room.step].time > this.state.time)
             this.setState({ time: this.state.time + 1 });
 
         const limit = (this.state.time * 100) / this.state.quizz.questions[this.state.room.step].time;
@@ -101,10 +100,10 @@ class Screen extends Component {
         fetch('http://quizz.k13-project.com/api/room/quizz/' + id)
             .then((response) => response.json())
             .then((room) => {
-                if (room.length == 0)
+                if (room.length === 0)
                     return;
 
-                if (this.state.room != null && parseInt(room[0].step) > parseInt(this.state.room.step))
+                if (this.state.room != null && parseInt(room[0].step, 10) > parseInt(this.state.room.step, 10))
                     this.handleNext();
 
                 this.setState({
@@ -131,7 +130,7 @@ class Screen extends Component {
             var display = ["er"];
             for (let i=0; i<this.state.players.length; i++)
                 display.push("ème");
-            const final = parseInt(this.state.room.step)+1 >= this.state.quizz.questions.length? "final": "";
+            const final = parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length? "final": "";
 
             return (
                 <div>

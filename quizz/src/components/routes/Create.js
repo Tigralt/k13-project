@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Form, FormGroup, Input, Row, Col, FormFeedback } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
 
@@ -67,14 +67,13 @@ class Create extends Component {
                 this.createQuizz(data.get("name"));
                 break;
 
-            case 1:
+            default:
                 const values = [];
                 for (let value of data.values())
                     values.push(value);
         
                 this.addQuestionAndAnswer(values);
                 this.props.history.push("/home");
-                break;
         }
     }
 
@@ -150,7 +149,7 @@ class Create extends Component {
                     </div>
                 );
 
-            case 1:
+            default:
                 return (
                     <div>
                         <Row>

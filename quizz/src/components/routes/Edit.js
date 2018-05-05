@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
 import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
@@ -36,7 +36,7 @@ class Edit extends Component {
 
         for(var index in this.state.quizz.questions) {
             let q = this.state.quizz.questions[index];
-            if (q.id == id) {
+            if (q.id === id) {
                 question = q;
                 break;
             }

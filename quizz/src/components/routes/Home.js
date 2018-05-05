@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
