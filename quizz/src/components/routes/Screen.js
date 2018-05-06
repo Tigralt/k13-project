@@ -27,7 +27,8 @@ class Screen extends Component {
             display_score: false,
             loading: true,
             time: 0,
-            color: "info"
+            color: "info",
+            image: false,
         }
     }
 
@@ -114,6 +115,20 @@ class Screen extends Component {
             });
     }
 
+    handleText(text) {
+        const regex = /\[img\](.*)\[\/img\]/g;
+        const match = text.match(regex)
+
+        if (match === null)
+            return text;
+        else {
+            const url = text.replace(regex, "$1");
+            return (
+                <img src={url} height="200px"/>
+            );
+        }
+    }
+
     render() {
         if (this.state.loading) {
             return (
@@ -161,7 +176,7 @@ class Screen extends Component {
             <div>
                 <Row className="pt-4 pb-4">
                     <Col xs="12" className="text-center">
-                        <h1>{this.state.quizz.questions[this.state.room.step].text}</h1>
+                        <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text)}</h1>
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-4">
@@ -173,13 +188,13 @@ class Screen extends Component {
                     <Col xs="6" className="text-center">
                         <Alert color="info" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>A</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[0].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[0].text)}</div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
                         <Alert color="success" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>C</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[2].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[2].text)}</div>
                         </Alert>
                     </Col>
                 </Row>
@@ -187,13 +202,13 @@ class Screen extends Component {
                     <Col xs="6" className="text-center">
                         <Alert color="danger" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>B</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[1].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[1].text)}</div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
                         <Alert color="warning" className="clearfix" style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>D</big>
-                            <div style={{ fontSize: "24px" }}>{this.state.quizz.questions[this.state.room.step].answers[3].text}</div>
+                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[3].text)}</div>
                         </Alert>
                     </Col>
                 </Row>

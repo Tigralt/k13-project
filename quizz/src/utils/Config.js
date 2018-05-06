@@ -1,3 +1,3 @@
-const API_URL = "http://quizz.k13-project.com/api/";
+const API_URL = "http://192.168.1.13/api/";
 
 export default API_URL;
