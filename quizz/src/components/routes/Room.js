@@ -3,6 +3,7 @@ import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
 import { Link } from "react-router-dom";
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
+import API_URL from './../../utils/Config.js';
 
 class Room extends Component {
     constructor(props) {
@@ -21,7 +22,7 @@ class Room extends Component {
         if ('id' in this.props.match.params) { // Joining room
             const id = this.props.match.params.id;
 
-            fetch('http://quizz.k13-project.com/api/quizz/' + id + "/nested")
+            fetch(API_URL + 'quizz/' + id + "/nested")
                 .then((response) => response.json())
                 .then((quizz) => {
                     if (quizz === false)
@@ -29,7 +30,7 @@ class Room extends Component {
 
                     this.setState({ quizz: quizz });
                     
-                    fetch('http://quizz.k13-project.com/api/room/quizz/' + id)
+                    fetch(API_URL + 'room/quizz/' + id)
                         .then((response) => response.json())
                         .then((room) => {
                             const session = JSON.parse(localStorage.getItem("session"));
@@ -38,7 +39,7 @@ class Room extends Component {
                             if (room.length === 0 && !owner) 
                                 return this.props.history.push("/join-room");
                             else if (room.length === 0 && owner) {
-                                return fetch('http://quizz.k13-project.com/api/room/', {
+                                return fetch(API_URL + 'room/', {
                                         method: 'POST',
                                         headers: {
                                             'Accept': 'application/x-www-form-urlencoded',
@@ -92,7 +93,7 @@ class Room extends Component {
 
     joinRoom(id) {
         const session = JSON.parse(localStorage.getItem("session"));
-        fetch('http://quizz.k13-project.com/api/player/' + session.id, {
+        fetch(API_URL + 'player/' + session.id, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -106,7 +107,7 @@ class Room extends Component {
     }
 
     updateRoom(id) {
-        fetch('http://quizz.k13-project.com/api/room/' + id)
+        fetch(API_URL + 'room/' + id)
             .then((response) => response.json())
             .then((room) => {
                 if (room === false) {
@@ -124,7 +125,7 @@ class Room extends Component {
     handleQuit(event) {
         if (window.confirm("Voulez vous vraiment quitter le quizz ?")) {
             this.setState({ loading: true });
-            fetch('http://quizz.k13-project.com/api/room/' + this.state.room.id, {method: "DELETE"})
+            fetch(API_URL + 'room/' + this.state.room.id, {method: "DELETE"})
                 .then((response) => response.json())
                 .then((responseJson) => {
                     this.props.history.push("/home");
@@ -137,7 +138,7 @@ class Room extends Component {
         this.props.loading()
         const data = new FormData(event.target);
 
-        fetch('http://quizz.k13-project.com/api/quizz/name/' + data.get("name"))
+        fetch(API_URL + 'quizz/name/' + data.get("name"))
             .then((response) => response.json())
             .then((quizz) => {
                 if (quizz.length === 0)
@@ -149,7 +150,7 @@ class Room extends Component {
     }
 
     handleStart(event) {
-        fetch('http://quizz.k13-project.com/api/room/' + this.state.room.id, {
+        fetch(API_URL + 'room/' + this.state.room.id, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -167,7 +168,7 @@ class Room extends Component {
     }
 
     handleNext(event) {
-        fetch('http://quizz.k13-project.com/api/room/' + this.state.room.id, {
+        fetch(API_URL + 'room/' + this.state.room.id, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -196,10 +197,10 @@ class Room extends Component {
         this.setState({ confirmed: true });
         const session = JSON.parse(localStorage.getItem("session"));
 
-        fetch('http://quizz.k13-project.com/api/player/' + session.id)
+        fetch(API_URL + 'player/' + session.id)
             .then((response) => response.json())
             .then((player) => {
-                fetch('http://quizz.k13-project.com/api/player/' + player.id, {
+                fetch(API_URL + 'player/' + player.id, {
                     method: 'PUT',
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',

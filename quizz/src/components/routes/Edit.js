@@ -5,6 +5,7 @@ import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
 import FontAwesomeIcon from '@fortawesome/react-fontawesome'
 import { Row, Col, Button, Table, ButtonGroup, Form, FormGroup, Input } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
+import API_URL from './../../utils/Config.js';
 
 class Edit extends Component {
     constructor(props) {
@@ -19,14 +20,14 @@ class Edit extends Component {
             edit: null
         };
 
-        fetch('http://quizz.k13-project.com/api/quizz/' + this.props.match.params.id + '/nested')
+        fetch(API_URL + 'quizz/' + this.props.match.params.id + '/nested')
             .then((response) => response.json())
             .then((responseJson) => { this.setState({ quizz: responseJson }); });
     }
 
     handleDelete(id) {
         this.props.loading();
-        fetch('http://quizz.k13-project.com/api/question/' + id, { method: 'DELETE'})
+        fetch(API_URL + 'question/' + id, { method: 'DELETE'})
             .then((response) => response.json())
             .then((responseJson) => { this.props.finished(); });
     }
@@ -81,7 +82,7 @@ class Edit extends Component {
         };
 
         if (this.state.edit > 0) {
-            fetch('http://quizz.k13-project.com/api/question/' + this.state.edit, {
+            fetch(API_URL + 'question/' + this.state.edit, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
@@ -97,7 +98,7 @@ class Edit extends Component {
                             question: question.id
                         };
                         
-                        fetch('http://quizz.k13-project.com/api/answer/' + _question.answers[i].id, {
+                        fetch(API_URL + 'answer/' + _question.answers[i].id, {
                             method: 'PUT',
                             headers: {
                                 'Accept': 'application/x-www-form-urlencoded',
@@ -108,7 +109,7 @@ class Edit extends Component {
                     }
                 });
         } else {
-            fetch('http://quizz.k13-project.com/api/question/', {
+            fetch(API_URL + 'question/', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
@@ -124,7 +125,7 @@ class Edit extends Component {
                             question: question.id
                         };
                         
-                        fetch('http://quizz.k13-project.com/api/answer/', {
+                        fetch(API_URL + 'answer/', {
                             method: 'POST',
                             headers: {
                                 'Accept': 'application/x-www-form-urlencoded',

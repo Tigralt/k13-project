@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { Button, Form, FormGroup, Input, Row, Col, FormFeedback } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
+import API_URL from './../../utils/Config.js';
 
 class Create extends Component {
     constructor(props) {
@@ -22,7 +23,7 @@ class Create extends Component {
     }
 
     createQuizz(name) {
-        fetch('http://quizz.k13-project.com/api/quizz/name/' + name)
+        fetch(API_URL + 'quizz/name/' + name)
             .then((response) => response.json())
             .then((responseJson) => {
                 if (responseJson.length > 0) { // Already exists
@@ -31,7 +32,7 @@ class Create extends Component {
                 }
 
                 // Create it
-                fetch('http://quizz.k13-project.com/api/quizz/', {
+                fetch(API_URL + 'quizz/', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
@@ -100,7 +101,7 @@ class Create extends Component {
         };
         this.pushQuestion(question);
 
-        fetch('http://quizz.k13-project.com/api/question/', {
+        fetch(API_URL + 'question/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -117,7 +118,7 @@ class Create extends Component {
                     };
                     this.pushAnswer(answer);
                     
-                    fetch('http://quizz.k13-project.com/api/answer/', {
+                    fetch(API_URL + 'answer/', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/x-www-form-urlencoded',

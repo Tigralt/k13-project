@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
+import API_URL from './../../utils/Config.js';
 
 class Player extends Component {
     constructor(props) {
@@ -17,7 +18,7 @@ class Player extends Component {
         const data = new FormData(event.target);
         this.username = data.get("name");
 
-        fetch('http://quizz.k13-project.com/api/player/')
+        fetch(API_URL + 'player/')
             .then((response) => response.json())
             .then((responseJson) => { this.handleApi(responseJson); });
     }
@@ -32,7 +33,7 @@ class Player extends Component {
         }
 
         if (!player) {
-            fetch('http://quizz.k13-project.com/api/player/', {
+            fetch(API_URL + 'player/', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',

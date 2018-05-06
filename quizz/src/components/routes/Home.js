@@ -5,13 +5,8 @@ import faPlay from '@fortawesome/fontawesome-free-solid/faPlay'
 import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
 import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
 import faTv from '@fortawesome/fontawesome-free-solid/faTv'
-import {
-    Row,
-    Col,
-    Button,
-    Table,
-    ButtonGroup,
-} from 'reactstrap';
+import { Row, Col, Button, Table, ButtonGroup } from 'reactstrap';
+import API_URL from './../../utils/Config.js';
 
 class Home extends Component {
     constructor(props) {
@@ -24,7 +19,7 @@ class Home extends Component {
     }
 
     getQuizzes(id) {
-        fetch('http://quizz.k13-project.com/api/quizz/player/' + id)
+        fetch(API_URL + 'quizz/player/' + id)
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({ quizz: responseJson });
@@ -33,7 +28,7 @@ class Home extends Component {
 
     handleDelete(id) {
         this.props.loading();
-        fetch('http://quizz.k13-project.com/api/quizz/' + id, { method: 'DELETE'})
+        fetch(API_URL + 'quizz/' + id, { method: 'DELETE'})
             .then((response) => response.json())
             .then((responseJson) => { this.props.finished(); });
     }

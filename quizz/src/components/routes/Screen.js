@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Row, Col, Alert, Progress } from 'reactstrap';
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
+import API_URL from './../../utils/Config.js';
 
 class Screen extends Component {
     constructor(props) {
@@ -11,7 +12,7 @@ class Screen extends Component {
         this.handleScore = this.handleScore.bind(this);
         this.handleNext = this.handleNext.bind(this);
 
-        fetch('http://quizz.k13-project.com/api/quizz/' + this.props.match.params.id + "/nested")
+        fetch(API_URL + 'quizz/' + this.props.match.params.id + "/nested")
             .then((response) => response.json())
             .then((quizz) => {
                 this.setState({ quizz: quizz  });
@@ -51,7 +52,7 @@ class Screen extends Component {
             });
 
             this.handleScore();
-            fetch('http://quizz.k13-project.com/api/room/' + this.state.room.id, {
+            fetch(API_URL + 'room/' + this.state.room.id, {
                 method: 'PUT',
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
@@ -70,7 +71,7 @@ class Screen extends Component {
     }
 
     handleScore() {
-        fetch('http://quizz.k13-project.com/api/player/room/' + this.state.room.id)
+        fetch(API_URL + 'player/room/' + this.state.room.id)
             .then((response) => response.json())
             .then((players) => {
                 players.sort(function(a,b) {
@@ -97,7 +98,7 @@ class Screen extends Component {
     }
 
     updateRoom(id) {
-        fetch('http://quizz.k13-project.com/api/room/quizz/' + id)
+        fetch(API_URL + 'room/quizz/' + id)
             .then((response) => response.json())
             .then((room) => {
                 if (room.length === 0)
