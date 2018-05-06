@@ -15,9 +15,7 @@ class Player extends Component {
         event.preventDefault();
         this.props.loading();
 
-        const data = new FormData(event.target);
-        this.username = data.get("name");
-
+        this.username = document.getElementsByName("name")[0].value;
         fetch(API_URL + 'player/')
             .then((response) => response.json())
             .then((responseJson) => { this.handleApi(responseJson); });

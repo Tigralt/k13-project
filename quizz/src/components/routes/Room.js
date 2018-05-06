@@ -136,9 +136,9 @@ class Room extends Component {
     handleSubmit(event) {
         event.preventDefault();
         this.props.loading()
-        const data = new FormData(event.target);
+        const name = document.getElementsByName("name")[0].value;
 
-        fetch(API_URL + 'quizz/name/' + data.get("name"))
+        fetch(API_URL + 'quizz/name/' + name)
             .then((response) => response.json())
             .then((quizz) => {
                 if (quizz.length === 0)
