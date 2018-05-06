@@ -115,7 +115,7 @@ class Screen extends Component {
             });
     }
 
-    handleText(text) {
+    handleText(text, height=0.30) {
         const regex = /\[img\](.*)\[\/img\]/g;
         const match = text.match(regex)
 
@@ -123,8 +123,13 @@ class Screen extends Component {
             return text;
         else {
             const url = text.replace(regex, "$1");
+            const imgHeight = window.innerHeight * height - 150;
+
+            if (imgHeight <= 0)
+                return "Erreur: écran trop petit";
+
             return (
-                <img src={url} height="200px"/>
+                <img src={url} height={imgHeight+"px"}/>
             );
         }
     }
@@ -176,7 +181,7 @@ class Screen extends Component {
             <div>
                 <Row className="pt-4 pb-4">
                     <Col xs="12" className="text-center">
-                        <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text)}</h1>
+                        <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text, 0.5)}</h1>
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-4">
