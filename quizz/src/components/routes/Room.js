@@ -225,9 +225,13 @@ class Room extends Component {
     handleScore(player) {
         var score = 0;
         for(let selected of this.state.selected) {
-            score += parseInt(this.state.quizz.questions[this.state.room.step].answers[selected].points, 10);
+            let points = parseInt(this.state.quizz.questions[this.state.room.step].answers[selected].points, 10);
+            if (points <= 0) {
+                score = 0;
+                break;
+            } else
+                score += points;
         }
-        score = Math.floor(score / this.state.selected.length);
 
         return score + parseInt(player.score, 10);
     }
