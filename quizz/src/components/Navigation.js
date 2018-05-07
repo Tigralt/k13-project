@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-    Collapse,
-    Navbar,
-    NavbarToggler,
-    NavbarBrand,
-    Nav,
-} from 'reactstrap';
+import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav } from 'reactstrap';
 
 class Navigation extends Component {
     constructor(props) {
@@ -27,7 +21,7 @@ class Navigation extends Component {
         return (
             <div>
                 <Navbar color="dark" dark expand="md">
-                    <NavbarBrand href="/">Quizz</NavbarBrand>
+                    <NavbarBrand href="/">Kebabhoot</NavbarBrand>
                     <NavbarToggler onClick={this.toggle} />
                     <Collapse isOpen={this.state.isOpen} navbar>
                         <Nav className="ml-auto" navbar>

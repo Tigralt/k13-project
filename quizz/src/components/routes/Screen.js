@@ -76,9 +76,9 @@ class Screen extends Component {
             .then((response) => response.json())
             .then((players) => {
                 players.sort(function(a,b) {
-                    if (a.score > b.score)
+                    if (parseInt(a.score, 10) > parseInt(b.score, 10))
                         return -1;
-                    if (a.score < b.score)
+                    if (parseInt(a.score, 10) < parseInt(b.score, 10))
                         return 1;
                     return 0;
                 });
