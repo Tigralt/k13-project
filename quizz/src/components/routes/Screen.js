@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Row, Col, Alert, Progress } from 'reactstrap';
 import ReactLoading from 'react-loading';
+import PlayerScore from "./../score/PlayerScore";
 import { formURLEncode } from './../../utils/Utils.js';
 import API_URL from './../../utils/Config.js';
 
@@ -24,7 +25,8 @@ class Screen extends Component {
             quizz: null,
             room: null,
             players: null,
-            display_score: false,
+            players_old: null,
+            display_step: 0,
             loading: true,
             time: 0,
             color: "info",
@@ -33,7 +35,7 @@ class Screen extends Component {
     }
 
     handleTime() {
-        if (this.state.room === null)
+        if (this.state.room === null || this.state.room.is_playing === "0" || this.state.display_step > 0)
             return;
 
         if (parseInt(this.state.room.is_playing, 10) === 1 && this.state.quizz.questions[this.state.room.step].time > this.state.time)
@@ -48,10 +50,6 @@ class Screen extends Component {
             this.setState({ color: "danger" });
 
         if (limit >= 100) {
-            this.setState({
-                loading: true
-            });
-
             this.handleScore();
             fetch(API_URL + 'room/' + this.state.room.id, {
                 method: 'PUT',
@@ -62,16 +60,13 @@ class Screen extends Component {
                 body: formURLEncode({
                     "is_playing": 0
                 })
-            }).then((response) => {
-                this.setState({
-                    time: 0,
-                    color: "info"
-                });
             });
         }
     }
 
     handleScore() {
+        const waiting_ms = 5000;
+
         fetch(API_URL + 'player/room/' + this.state.room.id)
             .then((response) => response.json())
             .then((players) => {
@@ -84,16 +79,28 @@ class Screen extends Component {
                 });
 
                 this.setState({
+                    players_old: this.state.players,
                     players: players,
-                    loading: false,
-                    display_score: true
+                    display_step: 1
+                }, () => {
+                    setTimeout(() => {
+                        this.setState({
+                            display_step: 2,
+                            time: 0,
+                            color: "info"
+                        }, () => {
+                            setTimeout(() => {
+                                this.setState({ display_step: 3 });
+                            }, waiting_ms);    
+                        });
+                    }, waiting_ms);
                 });
             });
     }
 
     handleNext() {
         this.setState({
-            display_score: false,
+            display_step: 0,
             loading: true
         });
     }
@@ -102,7 +109,7 @@ class Screen extends Component {
         fetch(API_URL + 'room/quizz/' + id)
             .then((response) => response.json())
             .then((room) => {
-                if (room.length === 0)
+                if (room.length === 0 || JSON.stringify(this.state.room) === JSON.stringify(room[0]) || (this.state.display_step > 0 && this.state.display_step < 3))
                     return;
 
                 if (this.state.room != null && parseInt(room[0].step, 10) > parseInt(this.state.room.step, 10))
@@ -147,7 +154,7 @@ class Screen extends Component {
             )
         }
 
-        if (this.state.display_score) {
+        if (this.state.display_step >= 2) {
             var display = ["er"];
             for (let i=0; i<this.state.players.length; i++)
                 display.push("ème");
@@ -168,7 +175,7 @@ class Screen extends Component {
                                     {index+1}{display[index]}
                                 </big>
                                 <div style={{ fontSize: "24px" }} className="text-center flex-fill">{player.name}</div>
-                                <big className="flex-fill text-right" style={{ fontSize:"36px" }}>{player.score} pt</big>
+                                <PlayerScore score={parseInt(player.score, 10)} old={this.state.players_old === null?null:parseInt(this.state.players_old[index].score, 10)} step={this.state.display_step-2}/>
                             </Alert>
                         </Col>
                         )}
@@ -176,6 +183,10 @@ class Screen extends Component {
                 </div>
             )
         }
+
+        var bounce = [];
+        for (let i=0; i<4; i++)
+            bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step == 1?"bounce-out":"");
 
         return (
             <div>
@@ -191,13 +202,13 @@ class Screen extends Component {
                 </Row>
                 <Row className="pt-4 pb-3">
                     <Col xs="6" className="text-center">
-                        <Alert color="info" className="clearfix" style={{ lineHeight: "48px" }}>
+                        <Alert color="info" className={bounce[0]} style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>A</big>
                             <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[0].text)}</div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
-                        <Alert color="success" className="clearfix" style={{ lineHeight: "48px" }}>
+                        <Alert color="success" className={bounce[2]} style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>C</big>
                             <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[2].text)}</div>
                         </Alert>
@@ -205,13 +216,13 @@ class Screen extends Component {
                 </Row>
                 <Row className="pb-4">
                     <Col xs="6" className="text-center">
-                        <Alert color="danger" className="clearfix" style={{ lineHeight: "48px" }}>
+                        <Alert color="danger" className={bounce[1]} style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>B</big>
                             <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[1].text)}</div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
-                        <Alert color="warning" className="clearfix" style={{ lineHeight: "48px" }}>
+                        <Alert color="warning" className={bounce[3]} style={{ lineHeight: "48px" }}>
                             <big className="mr-4 float-left" style={{fontSize:"48px"}}>D</big>
                             <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[3].text)}</div>
                         </Alert>
