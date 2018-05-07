@@ -22,17 +22,17 @@ class Navigation extends Component {
             <div>
                 <Navbar color="dark" dark expand="md">
                     <NavbarBrand href="/">Kebabhoot</NavbarBrand>
-                    <NavbarToggler onClick={this.toggle} />
+                    {/* <NavbarToggler onClick={this.toggle} />
                     <Collapse isOpen={this.state.isOpen} navbar>
                         <Nav className="ml-auto" navbar>
-                            {/* <NavItem>
+                            <NavItem>
                                 <NavLink href="/create-quizz/">Create a quizz</NavLink>
                             </NavItem>
                             <NavItem>
                                 <NavLink href="/join-room/">Join a room</NavLink>
-                            </NavItem> */}
+                            </NavItem> 
                         </Nav>
-                    </Collapse>
+                    </Collapse> */}
                 </Navbar>
             </div>
         );

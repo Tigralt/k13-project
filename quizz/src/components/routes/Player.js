@@ -67,7 +67,7 @@ class Player extends Component {
                     <Col sm="12" md={{ size: 6, offset: 3 }}>
                         <Form onSubmit={this.handleSubmit}>
                             <FormGroup>
-                                <Input type="text" name="name" placeholder="Nom d'utilisateur" />
+                                <Input type="text" name="name" placeholder="Nom d'utilisateur" maxlength="20"/>
                             </FormGroup>
                             <Button>Se connecter</Button>
                         </Form>

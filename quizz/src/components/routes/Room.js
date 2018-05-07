@@ -277,18 +277,18 @@ class Room extends Component {
                 <div>
                     <Row className="pt-4 pb-4">
                         <Col xs="6">
-                            <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>A</Button>
+                            <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>A</Button>
                         </Col>
                         <Col xs="6">
-                            <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>C</Button>
+                            <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>C</Button>
                         </Col>
                     </Row>
                     <Row className="pt-1 pb-4">
                         <Col xs="6">
-                            <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>B</Button>
+                            <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>B</Button>
                         </Col>
                         <Col xs="6">
-                            <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || this.state.room.is_playing === "0"}>D</Button>
+                            <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>D</Button>
                         </Col>
                     </Row>
                     <Row className="pt-4 pb-4">
