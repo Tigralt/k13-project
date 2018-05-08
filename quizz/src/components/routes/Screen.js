@@ -185,8 +185,11 @@ class Screen extends Component {
         }
 
         var bounce = [];
-        for (let i=0; i<4; i++)
+        var slide = [];
+        for (let i=0; i<4; i++) {
             bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step == 1?"bounce-out":"");
+            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step == 1?"fade-in-left":"");
+        }
 
         return (
             <div>
@@ -202,29 +205,49 @@ class Screen extends Component {
                 </Row>
                 <Row className="pt-4 pb-3">
                     <Col xs="6" className="text-center">
-                        <Alert color="info" className={bounce[0]} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 float-left" style={{fontSize:"48px"}}>A</big>
-                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[0].text)}</div>
+                        <Alert color="info" className={bounce[0] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
+                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>A</big>
+                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[0].text)}</div>
+                            <div className={slide[0] + " ribbon"}>
+                                <div className="text">
+                                    {this.state.quizz.questions[this.state.room.step].answers[0].points}pt
+                                </div>
+                            </div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
-                        <Alert color="success" className={bounce[2]} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 float-left" style={{fontSize:"48px"}}>C</big>
-                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[2].text)}</div>
+                        <Alert color="success" className={bounce[2] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
+                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>C</big>
+                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[2].text)}</div>
+                            <div className={slide[2] + " ribbon"}>
+                                <div className="text">
+                                    {this.state.quizz.questions[this.state.room.step].answers[2].points}pt
+                                </div>
+                            </div>
                         </Alert>
                     </Col>
                 </Row>
                 <Row className="pb-4">
                     <Col xs="6" className="text-center">
-                        <Alert color="danger" className={bounce[1]} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 float-left" style={{fontSize:"48px"}}>B</big>
-                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[1].text)}</div>
+                        <Alert color="danger" className={bounce[1] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
+                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>B</big>
+                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[1].text)}</div>
+                            <div className={slide[1] + " ribbon"}>
+                                <div className="text">
+                                    {this.state.quizz.questions[this.state.room.step].answers[1].points}pt
+                                </div>
+                            </div>
                         </Alert>
                     </Col>
                     <Col xs="6" className="text-center">
-                        <Alert color="warning" className={bounce[3]} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 float-left" style={{fontSize:"48px"}}>D</big>
-                            <div style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[3].text)}</div>
+                        <Alert color="warning" className={bounce[3] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
+                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>D</big>
+                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[3].text)}</div>
+                            <div className={slide[3] + " ribbon"}>
+                                <div className="text">
+                                    {this.state.quizz.questions[this.state.room.step].answers[3].points}pt
+                                </div>
+                            </div>
                         </Alert>
                     </Col>
                 </Row>
