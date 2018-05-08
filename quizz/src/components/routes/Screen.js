@@ -136,7 +136,7 @@ class Screen extends Component {
                 return "Erreur: écran trop petit";
 
             return (
-                <img src={url} height={imgHeight+"px"}/>
+                <img src={url} height={imgHeight+"px"} alt=""/>
             );
         }
     }
@@ -187,8 +187,8 @@ class Screen extends Component {
         var bounce = [];
         var slide = [];
         for (let i=0; i<4; i++) {
-            bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step == 1?"bounce-out":"");
-            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step == 1?"fade-in-left":"");
+            bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step === 1?"bounce-out":"");
+            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step === 1?"fade-in-left":"");
         }
 
         return (

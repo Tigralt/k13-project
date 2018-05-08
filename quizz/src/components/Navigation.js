@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Collapse, Navbar, NavbarToggler, NavbarBrand, Nav } from 'reactstrap';
+import { Navbar, NavbarBrand } from 'reactstrap';
 
 class Navigation extends Component {
     constructor(props) {
@@ -22,17 +22,6 @@ class Navigation extends Component {
             <div>
                 <Navbar color="dark" dark expand="md">
                     <NavbarBrand href="/">Kebabhoot</NavbarBrand>
-                    {/* <NavbarToggler onClick={this.toggle} />
-                    <Collapse isOpen={this.state.isOpen} navbar>
-                        <Nav className="ml-auto" navbar>
-                            <NavItem>
-                                <NavLink href="/create-quizz/">Create a quizz</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink href="/join-room/">Join a room</NavLink>
-                            </NavItem> 
-                        </Nav>
-                    </Collapse> */}
                 </Navbar>
             </div>
         );
