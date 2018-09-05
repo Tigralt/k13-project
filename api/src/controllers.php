@@ -14,11 +14,11 @@ $loader = new Loader($app, $base);
 $app->get($base, function () use ($app) {
     $documentation = array(
         "objects" => array(
-            "question" => array("text"),
-            "answer" => array("text", "points"),
-            "quizz" => array("name", "access_id"),
-            "room" => array("password"),
-            "player" => array("name", "score")
+            "question" => array("text", "question", "time", "quizz", "type"),
+            "answer" => array("text", "points", "question"),
+            "quizz" => array("name", "player", "type"),
+            "room" => array("password", "step", "is_playing", "quizz"),
+            "player" => array("name", "score", "room")
         ),
         "permissions" => array(
             "question" => array("GET", "POST", "PUT", "DELETE"),
