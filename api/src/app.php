@@ -7,8 +7,11 @@ use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\HttpFragmentServiceProvider;
 use Silex\Provider\RoutingServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
+$doctrine = Yaml::parseFile(__DIR__."/../config/packages/doctrine.yaml");
 
 $app = new Application();
 $app->register(new ServiceControllerServiceProvider());
@@ -18,11 +21,11 @@ $app->register(new HttpFragmentServiceProvider());
 $app->register(new RoutingServiceProvider());
 $app->register(new DoctrineServiceProvider(), array(
     "db.options" => array(
-        'driver'   => 'pdo_mysql',
-        'host'     => 'localhost',
-        'dbname'   => 'k13-project',
-        'user'     => 'root',
-        'password' => 'root',
+        'driver'   => $doctrine["driver"],
+        'host'     => $doctrine["host"],
+        'dbname'   => $doctrine["dbname"],
+        'user'     => $doctrine["user"],
+        'password' => $doctrine["password"],
     )
 ));
 

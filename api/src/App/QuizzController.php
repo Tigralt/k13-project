@@ -18,7 +18,7 @@ class QuizzController extends Controller {
             array("quizz/{id}", "put", "update"),
             array("quizz/{id}", "delete", "delete"),
         );
-        $this->members = array("name", "player");
+        $this->members = array("name", "player", "type");
         $this->app = $app;
 
         parent::__construct($app, $base, $this->table, $this->api, $this->members);
