@@ -33,11 +33,14 @@ class Room implements MessageComponentInterface
 
             // Question mgmt
             case "startQuestion": $this->handleStartQuestion($message); break;
+            case "stopQuestion": $this->handleStopQuestion($message); break;
             case "pauseQuestion": $this->handlePauseQuestion($message); break;
             case "nextQuestion": $this->handleNextQuestion($message); break;
 
             // Team mgmt
             case "playerBuzzQuestion": $this->handlePlayerBuzzQuestion($message); break;
+            case "acceptBuzzQuestion": $this->handleAcceptBuzzQuestion($message); break;
+            case "cancelBuzzQuestion": $this->handleCancelBuzzQuestion($message); break;
         }
     }
 
@@ -151,6 +154,21 @@ class Room implements MessageComponentInterface
 
     /**
      * message[2]:
+     *     0: "stopQuestion",
+     *     1: room_id
+     */
+    private function handleStopQuestion($message) {
+        if (count($message) < 2) return;
+
+        $room_id = (int) $message[1];
+        $roles = $this->rooms[$room_id];
+
+        foreach($roles["player"] as $player)
+            $player->send("stopQuestion");
+    }
+
+    /**
+     * message[2]:
      *     0: "nextQuestion",
      *     1: room_id
      */
@@ -182,14 +200,50 @@ class Room implements MessageComponentInterface
 
         $room_id = (int) $message[1];
         $player_name = $message[2];
+        $roles = $this->rooms[$room_id];
 
-        foreach($roles["player"] as $player)
-            $player->send("buzzQuestion");
-
-        foreach($roles["screen"] as $screen)
+        foreach($roles["screen"] as $screen) {
+            $screen->send("pauseQuestion");
             $screen->send("buzzQuestion|$player_name");
+        }
 
         foreach($roles["controller"] as $controller)
-            $screen->send("buzzQuestion|$player_name");
-    }    
+            $controller->send("buzzQuestion|$player_name");
+
+        foreach($roles["player"] as $player)
+            $player->send("pauseQuestion");
+    }
+
+    /**
+     * message[2]:
+     *     0: "acceptBuzzQuestion",
+     *     1: room_id
+     */
+    private function handleAcceptBuzzQuestion($message) {
+        if (count($message) < 2) return;
+
+        $room_id = (int) $message[1];
+        $roles = $this->rooms[$room_id];
+
+        foreach($roles["screen"] as $screen)
+            $screen->send("acceptBuzzQuestion");
+    }
+
+    /**
+     * message[2]:
+     *     0: "cancelBuzzQuestion",
+     *     1: room_id
+     */
+    private function handleCancelBuzzQuestion($message) {
+        if (count($message) < 2) return;
+
+        $room_id = (int) $message[1];
+        $roles = $this->rooms[$room_id];
+
+        foreach($roles["player"] as $player)
+            $player->send("startQuestion");
+
+        foreach($roles["screen"] as $screen)
+            $screen->send("cancelBuzzQuestion");
+    }
 }
