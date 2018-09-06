@@ -3,7 +3,7 @@ import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
 import { Link } from "react-router-dom";
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
-import API_URL from './../../utils/Config.js';
+import CONFIG from './../../utils/Config.js';
 
 class Room extends Component {
     constructor(props) {
@@ -15,14 +15,14 @@ class Room extends Component {
         this.handleNext = this.handleNext.bind(this);
         this.handleChoice = this.handleChoice.bind(this);
         this.handleConfirm = this.handleConfirm.bind(this);
-        this.handleUpdate = this.handleUpdate.bind(this);
         this.handleScore = this.handleScore.bind(this);
+        this.handleBuzz = this.handleBuzz.bind(this);
         this.updateRoom = this.updateRoom.bind(this);
 
         if ('id' in this.props.match.params) { // Joining room
             const id = this.props.match.params.id;
 
-            fetch(API_URL + 'quizz/' + id + "/nested")
+            fetch(CONFIG.API_URL + 'quizz/' + id + "/nested")
                 .then((response) => response.json())
                 .then((quizz) => {
                     if (quizz === false)
@@ -30,7 +30,7 @@ class Room extends Component {
 
                     this.setState({ quizz: quizz });
                     
-                    fetch(API_URL + 'room/quizz/' + id)
+                    fetch(CONFIG.API_URL + 'room/quizz/' + id)
                         .then((response) => response.json())
                         .then((room) => {
                             const session = JSON.parse(localStorage.getItem("session"));
@@ -39,7 +39,7 @@ class Room extends Component {
                             if (room.length === 0 && !owner) 
                                 return this.props.history.push("/join-room");
                             else if (room.length === 0 && owner) {
-                                return fetch(API_URL + 'room/', {
+                                return fetch(CONFIG.API_URL + 'room/', {
                                         method: 'POST',
                                         headers: {
                                             'Accept': 'application/x-www-form-urlencoded',
@@ -56,7 +56,7 @@ class Room extends Component {
                                                 owner: owner,
                                                 loading: false
                                             }, () => {
-                                                setInterval(() => { this.updateRoom(this.state.room.id); }, 500);
+                                                this.updateRoom();
                                             });
                                         });
                             }
@@ -71,9 +71,7 @@ class Room extends Component {
                                 owner: owner,
                                 loading: false
                             }, () => {
-                                this.setState({
-                                    update: setInterval(() => { this.updateRoom(this.state.room.id); }, 500)
-                                });
+                                this.updateRoom();
                             });
                         });
                 });
@@ -83,6 +81,7 @@ class Room extends Component {
             room: null,
             owner: false,
             loading: 'id' in this.props.match.params,
+            playing: false,
             end: false,
             quizz: null,
             update: null,
@@ -93,7 +92,7 @@ class Room extends Component {
 
     joinRoom(id) {
         const session = JSON.parse(localStorage.getItem("session"));
-        fetch(API_URL + 'player/' + session.id, {
+        fetch(CONFIG.API_URL + 'player/' + session.id, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -106,28 +105,35 @@ class Room extends Component {
         })
     }
 
-    updateRoom(id) {
-        fetch(API_URL + 'room/' + id)
-            .then((response) => response.json())
-            .then((room) => {
-                if (room === false) {
-                    clearInterval(this.state.update);
-                    return this.props.history.push("/home");
-                }
+    updateRoom() {
+        const conn = new WebSocket(CONFIG.SERVER_URL);
+        conn.onopen = (e) => {
+            conn.send(`joinRoom|${this.state.room.id}|${this.state.owner?"controller":"player"}`);
+        }
+        conn.onmessage = (e) => {
+            console.log(e.data);
+            switch(e.data) {
+                case "startQuestion": this.setState({ playing: true }); break;
+                case "pauseQuestion": this.setState({ playing: false }); break;
+                case "nextQuestion":  this.setState({ playing: false, confirmed: false, selected: [] }); break;
+                case "quitRoom": this.state.update.close(); this.props.history.push("/home"); break;
+                default:
+            }
+        }
 
-                this.handleUpdate(room);
-                this.setState({
-                    room: room
-                });
-            });
+        this.setState({
+            update: conn
+        });
     }
 
     handleQuit(event) {
         if (window.confirm("Voulez vous vraiment quitter le quizz ?")) {
             this.setState({ loading: true });
-            fetch(API_URL + 'room/' + this.state.room.id, {method: "DELETE"})
+            fetch(CONFIG.API_URL + 'room/' + this.state.room.id, {method: "DELETE"})
                 .then((response) => response.json())
                 .then((responseJson) => {
+                    this.state.update.send(`quitRoom|${this.state.room.id}|${this.state.owner?"controller":"player"}`);
+                    this.state.update.close();
                     this.props.history.push("/home");
                 });
         }
@@ -138,7 +144,7 @@ class Room extends Component {
         this.props.loading()
         const name = document.getElementsByName("name")[0].value;
 
-        fetch(API_URL + 'quizz/name/' + name)
+        fetch(CONFIG.API_URL + 'quizz/name/' + name)
             .then((response) => response.json())
             .then((quizz) => {
                 if (quizz.length === 0)
@@ -150,25 +156,12 @@ class Room extends Component {
     }
 
     handleStart(event) {
-        fetch(API_URL + 'room/' + this.state.room.id, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/x-www-form-urlencoded',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formURLEncode({
-                "is_playing": 1
-            })
-        }).then((response) => {
-            if (parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length) {
-                clearInterval(this.state.update);
-                this.setState({ end: true });
-            }
-        });
+        this.state.update.send(`startQuestion|${this.state.room.id}`);
+        this.setState({ playing: true });
     }
 
     handleNext(event) {
-        fetch(API_URL + 'room/' + this.state.room.id, {
+        fetch(CONFIG.API_URL + 'room/' + this.state.room.id, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -177,6 +170,13 @@ class Room extends Component {
             body: formURLEncode({
                 "step": parseInt(this.state.room.step, 10) + 1
             })
+        }).then((response) => response.json())
+        .then((room) => {
+            this.state.update.send(`nextQuestion|${this.state.room.id}`);
+            this.setState({
+                room: room,
+                playing: false,
+            });
         });
     }
 
@@ -197,10 +197,10 @@ class Room extends Component {
         this.setState({ confirmed: true });
         const session = JSON.parse(localStorage.getItem("session"));
 
-        fetch(API_URL + 'player/' + session.id)
+        fetch(CONFIG.API_URL + 'player/' + session.id)
             .then((response) => response.json())
             .then((player) => {
-                fetch(API_URL + 'player/' + player.id, {
+                fetch(CONFIG.API_URL + 'player/' + player.id, {
                     method: 'PUT',
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
@@ -211,15 +211,6 @@ class Room extends Component {
                     })
                 });
             });
-    }
-
-    handleUpdate(room) {
-        if (parseInt(room.step, 10) > parseInt(this.state.room.step, 10)) { // Next step
-            this.setState({
-                confirmed: false,
-                selected: []
-            });
-        }
     }
 
     handleScore(player) {
@@ -236,6 +227,13 @@ class Room extends Component {
         return score + parseInt(player.score, 10);
     }
 
+    handleBuzz(player) {
+        const session = JSON.parse(localStorage.getItem("session"));
+        this.state.update.send(`playerBuzzQuestion|${this.state.room.id}|${session.username}`);
+
+        this.setState({ confirmed: true });
+    }
+
     render() {
         if (this.state.loading) {
             return (
@@ -250,12 +248,14 @@ class Room extends Component {
         }
 
         if (this.state.room !== null) {
+
+            // Owner control panel
             if (this.state.owner) {
                 return (
                     <div>
                         <Row>
                             <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button color="success" size="lg" block disabled={this.state.room.is_playing === "1" || this.state.end} onClick={this.handleStart}>Démarrer la question</Button>
+                                <Button color="success" size="lg" block disabled={this.state.playing} onClick={this.handleStart}>Démarrer la question</Button>
                             </Col>
                         </Row>
                         <Row className="pt-4">
@@ -273,33 +273,53 @@ class Room extends Component {
                 )
             }
 
-            return (
-                <div>
-                    <Row className="pt-4 pb-4">
-                        <Col xs="6">
-                            <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>A</Button>
-                        </Col>
-                        <Col xs="6">
-                            <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>C</Button>
-                        </Col>
-                    </Row>
-                    <Row className="pt-1 pb-4">
-                        <Col xs="6">
-                            <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>B</Button>
-                        </Col>
-                        <Col xs="6">
-                            <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || this.state.room.is_playing === "0"} outline={this.state.room.is_playing === "1"}>D</Button>
-                        </Col>
-                    </Row>
-                    <Row className="pt-4 pb-4">
-                        <Col xs="12">
-                            <Button color="secondary" size="lg" block style={{ fontSize: "48px" }} onClick={this.handleConfirm} disabled={this.state.confirmed}>Valider</Button>
-                        </Col>
-                    </Row>
-                </div>
-            )
+            switch(this.state.quizz.type) {
+                case "single":
+                    // Single player answer panel
+                    return (
+                        <div>
+                            <Row className="pt-4 pb-4">
+                                <Col xs="6">
+                                    <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>A</Button>
+                                </Col>
+                                <Col xs="6">
+                                    <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>C</Button>
+                                </Col>
+                            </Row>
+                            <Row className="pt-1 pb-4">
+                                <Col xs="6">
+                                    <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>B</Button>
+                                </Col>
+                                <Col xs="6">
+                                    <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>D</Button>
+                                </Col>
+                            </Row>
+                            <Row className="pt-4 pb-4">
+                                <Col xs="12">
+                                    <Button color="secondary" size="lg" block style={{ fontSize: "48px" }} onClick={this.handleConfirm} disabled={this.state.confirmed}>Valider</Button>
+                                </Col>
+                            </Row>
+                        </div>
+                    );
+
+                case "team":
+                    // Team answer panel
+                    return (
+                        <div>
+                            <Row className="pt-4 pb-4">
+                                <Col xs="12">
+                                    <Button color="danger" size="lg" block style={{ fontSize: "48px", lineHeight: "6em" }} onClick={this.handleBuzz} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>Buzz</Button>
+                                </Col>
+                            </Row>
+                        </div>
+                    )
+
+                default:
+                    return (<div>Erreur de type de quizz</div>);
+            }
         }
 
+        // Join room form
         return (
             <div>
                 <Row>

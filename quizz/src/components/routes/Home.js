@@ -6,7 +6,7 @@ import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
 import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
 import faTv from '@fortawesome/fontawesome-free-solid/faTv'
 import { Row, Col, Button, Table, ButtonGroup } from 'reactstrap';
-import API_URL from './../../utils/Config.js';
+import CONFIG from './../../utils/Config.js';
 
 class Home extends Component {
     constructor(props) {
@@ -19,7 +19,7 @@ class Home extends Component {
     }
 
     getQuizzes(id) {
-        fetch(API_URL + 'quizz/player/' + id)
+        fetch(CONFIG.API_URL + 'quizz/player/' + id)
             .then((response) => response.json())
             .then((responseJson) => {
                 this.setState({ quizz: responseJson });
@@ -28,7 +28,7 @@ class Home extends Component {
 
     handleDelete(id) {
         this.props.loading();
-        fetch(API_URL + 'quizz/' + id, { method: 'DELETE'})
+        fetch(CONFIG.API_URL + 'quizz/' + id, { method: 'DELETE'})
             .then((response) => response.json())
             .then((responseJson) => { this.props.finished(); });
     }
@@ -70,7 +70,7 @@ class Home extends Component {
                                         <th width="1%">Actions</th>
                                     </tr>
                                     {this.state.quizz.map((quizz, key) =>
-                                        <tr>
+                                        <tr key={quizz.id}>
                                             <td className="align-middle">{quizz.name}</td>
                                             <td>
                                                 <ButtonGroup size="sm">

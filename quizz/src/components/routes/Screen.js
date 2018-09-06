@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { Row, Col, Alert, Progress } from 'reactstrap';
 import ReactLoading from 'react-loading';
 import PlayerScore from "./../score/PlayerScore";
-import { formURLEncode } from './../../utils/Utils.js';
-import API_URL from './../../utils/Config.js';
+import CONFIG from './../../utils/Config.js';
 
 class Screen extends Component {
     constructor(props) {
@@ -12,12 +11,12 @@ class Screen extends Component {
         this.handleTime = this.handleTime.bind(this);
         this.handleScore = this.handleScore.bind(this);
         this.handleNext = this.handleNext.bind(this);
+        this.joinRoom = this.joinRoom.bind(this);
 
-        fetch(API_URL + 'quizz/' + this.props.match.params.id + "/nested")
+        fetch(CONFIG.API_URL + 'quizz/' + this.props.match.params.id + "/nested")
             .then((response) => response.json())
             .then((quizz) => {
-                this.setState({ quizz: quizz  });
-                setInterval(() => this.updateRoom(quizz.id), 200);
+                this.setState({ quizz: quizz  }, () => this.joinRoom());
                 setInterval(() => this.handleTime(), 1000);
             });
 
@@ -26,21 +25,57 @@ class Screen extends Component {
             room: null,
             players: null,
             players_old: null,
+            update: null,
             display_step: 0,
+            playing: false,
             loading: true,
             time: 0,
             color: "info",
             image: false,
+            buzzed: false,
         }
     }
 
+    joinRoom() {
+        fetch(CONFIG.API_URL + 'room/quizz/' + this.state.quizz.id)
+            .then((response) => response.json())
+            .then((room) => {
+                if (room.length === 0)
+                    return;
+                
+                const conn = new WebSocket(CONFIG.SERVER_URL);
+                conn.onopen = (e) => {
+                    conn.send(`joinRoom|${room[0].id}|screen`);
+                }
+                conn.onmessage = (e) => {
+                    console.log(e.data);
+                    switch(e.data) {
+                        case "startQuestion": this.setState({ playing: true }); break;
+                        case "pauseQuestion": this.setState({ playing: false }); break;
+                        case "nextQuestion":  this.handleNext(); break;
+                        case "quitRoom": this.state.update.close(); this.props.history.push("/home"); break;
+                        default:
+                    }
+                }
+
+                this.setState({
+                    room: room[0],
+                    loading: false,
+                    update: conn,
+                });
+            });
+    }
+
     handleTime() {
-        if (this.state.room === null || this.state.room.is_playing === "0" || this.state.display_step > 0)
+        // Timer paused
+        if (!this.state.playing || this.state.display_step > 0)
             return;
 
-        if (parseInt(this.state.room.is_playing, 10) === 1 && this.state.quizz.questions[this.state.room.step].time > this.state.time)
+        // Update timer
+        if (this.state.playing && this.state.quizz.questions[this.state.room.step].time > this.state.time)
             this.setState({ time: this.state.time + 1 });
 
+        // Set timer color
         const limit = (this.state.time * 100) / this.state.quizz.questions[this.state.room.step].time;
         if (limit < 50)
             this.setState({ color: "info" });
@@ -49,25 +84,17 @@ class Screen extends Component {
         else
             this.setState({ color: "danger" });
 
+        // Time limit
         if (limit >= 100) {
             this.handleScore();
-            fetch(API_URL + 'room/' + this.state.room.id, {
-                method: 'PUT',
-                headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formURLEncode({
-                    "is_playing": 0
-                })
-            });
+            this.setState({playing: false});
         }
     }
 
     handleScore() {
         const waiting_ms = 5000;
 
-        fetch(API_URL + 'player/room/' + this.state.room.id)
+        fetch(CONFIG.API_URL + 'player/room/' + this.state.room.id)
             .then((response) => response.json())
             .then((players) => {
                 players.sort(function(a,b) {
@@ -102,24 +129,23 @@ class Screen extends Component {
         this.setState({
             display_step: 0,
             loading: true
-        });
-    }
-
-    updateRoom(id) {
-        fetch(API_URL + 'room/quizz/' + id)
+        }, () => {
+            fetch(CONFIG.API_URL + 'room/quizz/' + this.state.quizz.id)
             .then((response) => response.json())
             .then((room) => {
-                if (room.length === 0 || JSON.stringify(this.state.room) === JSON.stringify(room[0]) || (this.state.display_step > 0 && this.state.display_step < 3))
+                if (room.length === 0)
                     return;
-
-                if (this.state.room != null && parseInt(room[0].step, 10) > parseInt(this.state.room.step, 10))
-                    this.handleNext();
 
                 this.setState({
                     room: room[0],
                     loading: false
                 });
             });
+        });
+    }
+    
+    handleBuzz() {
+
     }
 
     handleText(text, height=0.30) {
@@ -154,6 +180,7 @@ class Screen extends Component {
             )
         }
 
+        // Display score
         if (this.state.display_step >= 2) {
             var display = ["er"];
             for (let i=0; i<this.state.players.length; i++)
@@ -184,6 +211,7 @@ class Screen extends Component {
             )
         }
 
+        // Load animation when time limit
         var bounce = [];
         var slide = [];
         for (let i=0; i<4; i++) {
@@ -191,8 +219,10 @@ class Screen extends Component {
             slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step === 1?"fade-in-left":"");
         }
 
+        // Display question & answers
         return (
             <div>
+                { this.state.buzzed ? <div className="buzzed">Buzz</div> : null }
                 <Row className="pt-4 pb-4">
                     <Col xs="12" className="text-center">
                         <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text, 0.5)}</h1>

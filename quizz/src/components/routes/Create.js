@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { Button, Form, FormGroup, Input, Row, Col, FormFeedback } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
-import API_URL from './../../utils/Config.js';
+import CONFIG from './../../utils/Config.js';
 
 class Create extends Component {
     constructor(props) {
@@ -22,8 +22,8 @@ class Create extends Component {
         };
     }
 
-    createQuizz(name) {
-        fetch(API_URL + 'quizz/name/' + name)
+    createQuizz(name, type) {
+        fetch(CONFIG.API_URL + 'quizz/name/' + name)
             .then((response) => response.json())
             .then((responseJson) => {
                 if (responseJson.length > 0) { // Already exists
@@ -32,7 +32,7 @@ class Create extends Component {
                 }
 
                 // Create it
-                fetch(API_URL + 'quizz/', {
+                fetch(CONFIG.API_URL + 'quizz/', {
                     method: 'POST',
                     headers: {
                         'Accept': 'application/x-www-form-urlencoded',
@@ -40,6 +40,7 @@ class Create extends Component {
                     },
                     body: formURLEncode({
                         "name": name,
+                        "type": type,
                         "player": this.session.id
                     })
                 }).then((response) => response.json())
@@ -65,7 +66,7 @@ class Create extends Component {
 
         switch (this.state.step) {
             case 0:
-                this.createQuizz(data.get("name"));
+                this.createQuizz(data.get("name"), data.get("type"));
                 break;
 
             default:
@@ -101,7 +102,7 @@ class Create extends Component {
         };
         this.pushQuestion(question);
 
-        fetch(API_URL + 'question/', {
+        fetch(CONFIG.API_URL + 'question/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/x-www-form-urlencoded',
@@ -118,7 +119,7 @@ class Create extends Component {
                     };
                     this.pushAnswer(answer);
                     
-                    fetch(API_URL + 'answer/', {
+                    fetch(CONFIG.API_URL + 'answer/', {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/x-www-form-urlencoded',
@@ -142,6 +143,12 @@ class Create extends Component {
                                     <FormGroup>
                                         <Input type="text" name="name" placeholder="Nom du quizz" invalid={this.state.invalid}/>
                                         <FormFeedback>Ce nom est déja pris !</FormFeedback>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Input type="select" name="type" placeholder="Type de quizz">
+                                            <option value="single">En solo</option>
+                                            <option value="team">En équipe</option>
+                                        </Input>
                                     </FormGroup>
                                     <Button color="success">Suivant</Button>
                                 </Form>

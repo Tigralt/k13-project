@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
-import API_URL from './../../utils/Config.js';
+import CONFIG from './../../utils/Config.js';
 
 class Player extends Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class Player extends Component {
         this.props.loading();
 
         this.username = document.getElementsByName("name")[0].value;
-        fetch(API_URL + 'player/')
+        fetch(CONFIG.API_URL + 'player/')
             .then((response) => response.json())
             .then((responseJson) => { this.handleApi(responseJson); });
     }
@@ -31,7 +31,7 @@ class Player extends Component {
         }
 
         if (!player) {
-            fetch(API_URL + 'player/', {
+            fetch(CONFIG.API_URL + 'player/', {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/x-www-form-urlencoded',
@@ -67,7 +67,7 @@ class Player extends Component {
                     <Col sm="12" md={{ size: 6, offset: 3 }}>
                         <Form onSubmit={this.handleSubmit}>
                             <FormGroup>
-                                <Input type="text" name="name" placeholder="Nom d'utilisateur" maxlength="20"/>
+                                <Input type="text" name="name" placeholder="Nom d'utilisateur" maxLength="20"/>
                             </FormGroup>
                             <Button>Se connecter</Button>
                         </Form>
