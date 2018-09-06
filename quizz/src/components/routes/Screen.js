@@ -32,7 +32,7 @@ class Screen extends Component {
             time: 0,
             color: "info",
             image: false,
-            buzzed: false,
+            buzzed: [],
         }
     }
 
@@ -48,13 +48,28 @@ class Screen extends Component {
                     conn.send(`joinRoom|${room[0].id}|screen`);
                 }
                 conn.onmessage = (e) => {
-                    console.log(e.data);
                     switch(e.data) {
+                        // Question
                         case "startQuestion": this.setState({ playing: true }); break;
                         case "pauseQuestion": this.setState({ playing: false }); break;
                         case "nextQuestion":  this.handleNext(); break;
+
+                        // Room
                         case "quitRoom": this.state.update.close(); this.props.history.push("/home"); break;
+
+                        // Team
+                        case "acceptBuzzQuestion":
+                            this.setState({ buzzed: [], time: this.state.quizz.questions[this.state.room.step].time, playing: false });
+                            this.handleScore();
+                            break;
+                        case "cancelBuzzQuestion":
+                            const buzzed = this.state.buzzed.splice(1, this.state.buzzed.length);
+                            this.setState({ buzzed: buzzed, playing: buzzed.length === 0 });
+                            break;
                         default:
+                            if (e.data.indexOf("buzzQuestion") >= 0) {
+                                this.setState({ buzzed: this.state.buzzed.concat(e.data.split('|')[1]) });
+                            }
                     }
                 }
 
@@ -72,22 +87,30 @@ class Screen extends Component {
             return;
 
         // Update timer
+        let time = this.state.time;
         if (this.state.playing && this.state.quizz.questions[this.state.room.step].time > this.state.time)
-            this.setState({ time: this.state.time + 1 });
+            time += 1;
 
         // Set timer color
-        const limit = (this.state.time * 100) / this.state.quizz.questions[this.state.room.step].time;
+        const limit = (time * 100) / this.state.quizz.questions[this.state.room.step].time;
+        let color = "";
         if (limit < 50)
-            this.setState({ color: "info" });
+            color = "info";
         else if (limit < 75)
-            this.setState({ color: "warning" });
+            color = "warning";
         else
-            this.setState({ color: "danger" });
+            color = "danger";
+
+        this.setState({
+            time: limit > 100? this.state.quizz.questions[this.state.room.step].time : time,
+            color: color,
+            playing: limit < 100
+        });
 
         // Time limit
         if (limit >= 100) {
+            this.state.update.send(`stopQuestion|${this.state.room.id}`);
             this.handleScore();
-            this.setState({playing: false});
         }
     }
 
@@ -142,10 +165,6 @@ class Screen extends Component {
                 });
             });
         });
-    }
-    
-    handleBuzz() {
-
     }
 
     handleText(text, height=0.30) {
@@ -222,7 +241,7 @@ class Screen extends Component {
         // Display question & answers
         return (
             <div>
-                { this.state.buzzed ? <div className="buzzed">Buzz</div> : null }
+                { this.state.buzzed.length > 0 ? <div className="buzzed">{ this.state.buzzed[0] }</div> : null }
                 <Row className="pt-4 pb-4">
                     <Col xs="12" className="text-center">
                         <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text, 0.5)}</h1>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Input, Row, Col } from 'reactstrap';
+import { Button, Form, FormGroup, Input, Row, Col, Jumbotron } from 'reactstrap';
 import { Link } from "react-router-dom";
 import ReactLoading from 'react-loading';
 import { formURLEncode } from './../../utils/Utils.js';
@@ -17,6 +17,8 @@ class Room extends Component {
         this.handleConfirm = this.handleConfirm.bind(this);
         this.handleScore = this.handleScore.bind(this);
         this.handleBuzz = this.handleBuzz.bind(this);
+        this.handleAcceptBuzz = this.handleAcceptBuzz.bind(this);
+        this.handleCancelBuzz = this.handleCancelBuzz.bind(this);
         this.updateRoom = this.updateRoom.bind(this);
 
         if ('id' in this.props.match.params) { // Joining room
@@ -85,6 +87,7 @@ class Room extends Component {
             end: false,
             quizz: null,
             update: null,
+            buzzed: [],
             selected: [],
             confirmed: false
         };
@@ -111,13 +114,20 @@ class Room extends Component {
             conn.send(`joinRoom|${this.state.room.id}|${this.state.owner?"controller":"player"}`);
         }
         conn.onmessage = (e) => {
-            console.log(e.data);
             switch(e.data) {
-                case "startQuestion": this.setState({ playing: true }); break;
-                case "pauseQuestion": this.setState({ playing: false }); break;
-                case "nextQuestion":  this.setState({ playing: false, confirmed: false, selected: [] }); break;
+                // Room
                 case "quitRoom": this.state.update.close(); this.props.history.push("/home"); break;
+
+                // Question
+                case "startQuestion": this.setState({ playing: true }); break;
+                case "stopQuestion": case "pauseQuestion": this.setState({ playing: false }); break;
+                case "nextQuestion":  this.setState({ playing: false, confirmed: false, selected: [] }); break;
+
+                // Team
                 default:
+                    if (e.data.indexOf("buzzQuestion") >= 0) {
+                        this.setState({ buzzed: this.state.buzzed.concat(e.data.split('|')[1]) });
+                    }
             }
         }
 
@@ -162,22 +172,22 @@ class Room extends Component {
 
     handleNext(event) {
         fetch(CONFIG.API_URL + 'room/' + this.state.room.id, {
-            method: 'PUT',
-            headers: {
-                'Accept': 'application/x-www-form-urlencoded',
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: formURLEncode({
-                "step": parseInt(this.state.room.step, 10) + 1
-            })
-        }).then((response) => response.json())
-        .then((room) => {
-            this.state.update.send(`nextQuestion|${this.state.room.id}`);
-            this.setState({
-                room: room,
-                playing: false,
+                method: 'PUT',
+                headers: {
+                    'Accept': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formURLEncode({
+                    "step": parseInt(this.state.room.step, 10) + 1
+                })
+            }).then((response) => response.json())
+            .then((room) => {
+                this.state.update.send(`nextQuestion|${this.state.room.id}`);
+                this.setState({
+                    room: room,
+                    playing: false,
+                });
             });
-        });
     }
 
     handleChoice(selected) {
@@ -227,11 +237,39 @@ class Room extends Component {
         return score + parseInt(player.score, 10);
     }
 
-    handleBuzz(player) {
+    handleBuzz() {
         const session = JSON.parse(localStorage.getItem("session"));
         this.state.update.send(`playerBuzzQuestion|${this.state.room.id}|${session.username}`);
-
         this.setState({ confirmed: true });
+    }
+
+    handleAcceptBuzz() {
+        fetch(CONFIG.API_URL + 'player/name/' + this.state.buzzed[0])
+            .then((response) => response.json())
+            .then((players) => {
+                if (players.length === 0)
+                    return;
+                const player = players[0];
+
+                fetch(CONFIG.API_URL + 'player/' + player.id, {
+                    method: 'PUT',
+                    headers: {
+                        'Accept': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formURLEncode({
+                        "score": parseInt(player.score, 10) + 1
+                    })
+                }).then(() => {
+                    this.state.update.send(`acceptBuzzQuestion|${this.state.room.id}`);
+                    this.setState({ buzzed: [] });
+                });
+            });
+    }
+
+    handleCancelBuzz() {
+        this.state.update.send(`cancelBuzzQuestion|${this.state.room.id}`);
+        this.setState({ buzzed: this.state.buzzed.splice(1, this.state.buzzed.length) });
     }
 
     render() {
@@ -251,26 +289,46 @@ class Room extends Component {
 
             // Owner control panel
             if (this.state.owner) {
-                return (
-                    <div>
-                        <Row>
-                            <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button color="success" size="lg" block disabled={this.state.playing} onClick={this.handleStart}>Démarrer la question</Button>
-                            </Col>
-                        </Row>
-                        <Row className="pt-4">
-                            <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button size="lg" block onClick={this.handleNext} disabled={parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length}>Question suivante</Button>
-                            </Col>
-                        </Row>
+                if (this.state.buzzed.length > 0) { // Buzzer mgmt
+                    return (
+                        <div>
+                            <Row className="pt-4">
+                                <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                    <Jumbotron><h1 className="text-center">{ this.state.buzzed[0] }</h1></Jumbotron>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col xs="6" md={{ size: 3, offset: 3 }}>
+                                    <Button color="success" size="lg" block outline onClick={this.handleAcceptBuzz}>Accepter</Button>
+                                </Col>
+                                <Col xs="6" md={{ size: 3, offset: 3 }}>
+                                    <Button color="danger" size="lg" block outline onClick={this.handleCancelBuzz}>Refuser</Button>
+                                </Col>
+                            </Row>
+                        </div>
+                    );
+                } else { // Quizz mgmt
+                    return (
+                        <div>
+                            <Row>
+                                <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                    <Button color="success" size="lg" block disabled={this.state.playing} onClick={this.handleStart}>Démarrer la question</Button>
+                                </Col>
+                            </Row>
+                            <Row className="pt-4">
+                                <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                    <Button size="lg" block onClick={this.handleNext} disabled={parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length}>Question suivante</Button>
+                                </Col>
+                            </Row>
 
-                        <Row className="pt-4">
-                            <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                <Button color="danger" size="lg" block onClick={this.handleQuit}>Arrêter le quizz</Button>
-                            </Col>
-                        </Row>
-                    </div>
-                )
+                            <Row className="pt-4">
+                                <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                    <Button color="danger" size="lg" block onClick={this.handleQuit}>Arrêter le quizz</Button>
+                                </Col>
+                            </Row>
+                        </div>
+                    );
+                }
             }
 
             switch(this.state.quizz.type) {
