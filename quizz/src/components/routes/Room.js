@@ -17,6 +17,7 @@ class Room extends Component {
         this.handleConfirm = this.handleConfirm.bind(this);
         this.handleScore = this.handleScore.bind(this);
         this.handleBuzz = this.handleBuzz.bind(this);
+        this.handleScoreBuzz = this.handleScoreBuzz.bind(this);
         this.handleAcceptBuzz = this.handleAcceptBuzz.bind(this);
         this.handleCancelBuzz = this.handleCancelBuzz.bind(this);
         this.updateRoom = this.updateRoom.bind(this);
@@ -84,6 +85,7 @@ class Room extends Component {
             owner: false,
             loading: 'id' in this.props.match.params,
             playing: false,
+            scoring: false,
             end: false,
             quizz: null,
             update: null,
@@ -114,6 +116,7 @@ class Room extends Component {
             conn.send(`joinRoom|${this.state.room.id}|${this.state.owner?"controller":"player"}`);
         }
         conn.onmessage = (e) => {
+            console.log(e.data);
             switch(e.data) {
                 // Room
                 case "quitRoom": this.state.update.close(); this.props.history.push("/home"); break;
@@ -243,7 +246,14 @@ class Room extends Component {
         this.setState({ confirmed: true });
     }
 
-    handleAcceptBuzz() {
+    handleScoreBuzz() {
+        this.setState({ scoring: true });
+    }
+
+    handleAcceptBuzz(event) {
+        event.preventDefault();
+
+        let score = document.getElementsByName("score")[0].value;
         fetch(CONFIG.API_URL + 'player/name/' + this.state.buzzed[0])
             .then((response) => response.json())
             .then((players) => {
@@ -258,11 +268,11 @@ class Room extends Component {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: formURLEncode({
-                        "score": parseInt(player.score, 10) + 1
+                        "score": parseInt(player.score, 10) + parseInt(score, 10)
                     })
                 }).then(() => {
                     this.state.update.send(`acceptBuzzQuestion|${this.state.room.id}`);
-                    this.setState({ buzzed: [] });
+                    this.setState({ scoring: false, buzzed: [] });
                 });
             });
     }
@@ -290,6 +300,30 @@ class Room extends Component {
             // Owner control panel
             if (this.state.owner) {
                 if (this.state.buzzed.length > 0) { // Buzzer mgmt
+                    if (this.state.scoring) { // Give score to the buzzed team
+                        return (
+                            <div>
+                                <Row className="pt-4">
+                                    <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                        <Jumbotron><h1 className="text-center">{ this.state.buzzed[0] }</h1></Jumbotron>
+                                    </Col>
+                                </Row>
+                                <Row className="pt-1">
+                                    <Col xs="12" md={{ size: 6, offset: 3 }}>
+                                        <Form onSubmit={this.handleAcceptBuzz}>
+                                            <FormGroup>
+                                                <Input placeholder="Score" type="number" name="score"/>
+                                            </FormGroup>
+                                            <Button>Valider</Button>
+                                        </Form>
+                                        
+                                    </Col>
+                                </Row>
+                            </div>
+                        );
+                    }
+
+                    // Accept or refuse buzz answer
                     return (
                         <div>
                             <Row className="pt-4">
@@ -299,7 +333,7 @@ class Room extends Component {
                             </Row>
                             <Row>
                                 <Col xs="6" md={{ size: 3, offset: 3 }}>
-                                    <Button color="success" size="lg" block outline onClick={this.handleAcceptBuzz}>Accepter</Button>
+                                    <Button color="success" size="lg" block outline onClick={this.handleScoreBuzz}>Accepter</Button>
                                 </Col>
                                 <Col xs="6" md={{ size: 3, offset: 3 }}>
                                     <Button color="danger" size="lg" block outline onClick={this.handleCancelBuzz}>Refuser</Button>

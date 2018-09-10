@@ -48,6 +48,7 @@ class Screen extends Component {
                     conn.send(`joinRoom|${room[0].id}|screen`);
                 }
                 conn.onmessage = (e) => {
+                    console.log(e.data);
                     switch(e.data) {
                         // Question
                         case "startQuestion": this.setState({ playing: true }); break;
@@ -235,7 +236,7 @@ class Screen extends Component {
         var slide = [];
         for (let i=0; i<4; i++) {
             bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step === 1?"bounce-out":"");
-            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step === 1?"fade-in-left":"");
+            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step === 1 && this.state.quizz.type === "single"?"fade-in-left":"");
         }
 
         // Display question & answers
