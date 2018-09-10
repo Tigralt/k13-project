@@ -6,7 +6,5 @@ class SortAnswer extends Component {
         super(props);
     }
 
-    render() {
-        
-    }
+    render() {}
 }

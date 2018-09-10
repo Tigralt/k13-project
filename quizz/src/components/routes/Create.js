@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import { Button, Form, FormGroup, Input, Row, Col, FormFeedback } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import {
+    Button,
+    Form,
+    FormGroup,
+    Input,
+    Row,
+    Col,
+    FormFeedback,
+} from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
 import CONFIG from './../../utils/Config.js';
 
@@ -11,22 +19,23 @@ class Create extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.createQuizz = this.createQuizz.bind(this);
-        this.session = JSON.parse(localStorage.getItem("session"));
+        this.session = JSON.parse(localStorage.getItem('session'));
         this.state = {
             quiz: null,
             invalid: false,
             step: 0,
             pagination: 0,
             questions: [],
-            answers: []
+            answers: [],
         };
     }
 
     createQuizz(name, type) {
         fetch(CONFIG.API_URL + 'quizz/name/' + name)
-            .then((response) => response.json())
-            .then((responseJson) => {
-                if (responseJson.length > 0) { // Already exists
+            .then(response => response.json())
+            .then(responseJson => {
+                if (responseJson.length > 0) {
+                    // Already exists
                     this.validation(true);
                     return;
                 }
@@ -35,29 +44,42 @@ class Create extends Component {
                 fetch(CONFIG.API_URL + 'quizz/', {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/x-www-form-urlencoded',
+                        Accept: 'application/x-www-form-urlencoded',
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
                     body: formURLEncode({
-                        "name": name,
-                        "type": type,
-                        "player": this.session.id
-                    })
-                }).then((response) => response.json())
-                    .then((responseJson) => {
+                        name: name,
+                        type: type,
+                        player: this.session.id,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(responseJson => {
                         this.setQuizz(responseJson);
                         this.nextStep();
-                        document.getElementById("quizzform").reset();
+                        document.getElementById('quizzform').reset();
                     });
             });
     }
 
-    validation(value) { this.setState({ invalid: value }); }
-    setQuizz(value) { this.setState({ quizz: value }); }
-    nextStep() { this.setState({ step: this.state.step + 1 }); }
-    prevStep() { this.setState({ step: this.state.step - 1 }); }
-    pushQuestion(question) { this.setState({ question: this.state.questions.concat(question) }); }
-    pushAnswer(answer) { this.setState({ answer: this.state.answers.concat(answer) }); }
+    validation(value) {
+        this.setState({ invalid: value });
+    }
+    setQuizz(value) {
+        this.setState({ quizz: value });
+    }
+    nextStep() {
+        this.setState({ step: this.state.step + 1 });
+    }
+    prevStep() {
+        this.setState({ step: this.state.step - 1 });
+    }
+    pushQuestion(question) {
+        this.setState({ question: this.state.questions.concat(question) });
+    }
+    pushAnswer(answer) {
+        this.setState({ answer: this.state.answers.concat(answer) });
+    }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -66,28 +88,26 @@ class Create extends Component {
 
         switch (this.state.step) {
             case 0:
-                this.createQuizz(data.get("name"), data.get("type"));
+                this.createQuizz(data.get('name'), data.get('type'));
                 break;
 
             default:
                 const values = [];
-                for (let value of data.values())
-                    values.push(value);
-        
+                for (let value of data.values()) values.push(value);
+
                 this.addQuestionAndAnswer(values);
-                this.props.history.push("/home");
+                this.props.history.push('/home');
         }
     }
 
     handleClick(event) {
         event.preventDefault();
 
-        const form = document.getElementById("quizzform");
+        const form = document.getElementById('quizzform');
         const data = new FormData(form);
 
         const values = [];
-        for (let value of data.values())
-            values.push(value);
+        for (let value of data.values()) values.push(value);
         console.log(values);
 
         this.addQuestionAndAnswer(values);
@@ -98,34 +118,35 @@ class Create extends Component {
         let question = {
             text: values[0],
             time: values[1],
-            quizz: this.state.quizz.id
+            quizz: this.state.quizz.id,
         };
         this.pushQuestion(question);
 
         fetch(CONFIG.API_URL + 'question/', {
             method: 'POST',
             headers: {
-                'Accept': 'application/x-www-form-urlencoded',
+                Accept: 'application/x-www-form-urlencoded',
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: formURLEncode(question)
-        }).then((response) => response.json())
-            .then((question) => {
-                for (let i=0; i<4; i++) {
+            body: formURLEncode(question),
+        })
+            .then(response => response.json())
+            .then(question => {
+                for (let i = 0; i < 4; i++) {
                     let answer = {
-                        text: values[(i+1)*2],
-                        points: values[(i+1)*2+1],
-                        question: question.id
+                        text: values[(i + 1) * 2],
+                        points: values[(i + 1) * 2 + 1],
+                        question: question.id,
                     };
                     this.pushAnswer(answer);
-                    
+
                     fetch(CONFIG.API_URL + 'answer/', {
                         method: 'POST',
                         headers: {
-                            'Accept': 'application/x-www-form-urlencoded',
+                            Accept: 'application/x-www-form-urlencoded',
                             'Content-Type': 'application/x-www-form-urlencoded',
                         },
-                        body: formURLEncode(answer)
+                        body: formURLEncode(answer),
                     });
                 }
             });
@@ -138,16 +159,44 @@ class Create extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h2>Créer un quizz <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h2>
-                                <Form onSubmit={this.handleSubmit} id="quizzform">
+                                <h2>
+                                    Créer un quizz{' '}
+                                    <Button
+                                        tag={Link}
+                                        to="/home"
+                                        size="sm"
+                                        className="float-right"
+                                    >
+                                        Retour
+                                    </Button>
+                                </h2>
+                                <Form
+                                    onSubmit={this.handleSubmit}
+                                    id="quizzform"
+                                >
                                     <FormGroup>
-                                        <Input type="text" name="name" placeholder="Nom du quizz" invalid={this.state.invalid}/>
-                                        <FormFeedback>Ce nom est déja pris !</FormFeedback>
+                                        <Input
+                                            type="text"
+                                            name="name"
+                                            placeholder="Nom du quizz"
+                                            invalid={this.state.invalid}
+                                        />
+                                        <FormFeedback>
+                                            Ce nom est déja pris !
+                                        </FormFeedback>
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="select" name="type" placeholder="Type de quizz">
-                                            <option value="single">En solo</option>
-                                            <option value="team">En équipe</option>
+                                        <Input
+                                            type="select"
+                                            name="type"
+                                            placeholder="Type de quizz"
+                                        >
+                                            <option value="single">
+                                                En solo
+                                            </option>
+                                            <option value="team">
+                                                En équipe
+                                            </option>
                                         </Input>
                                     </FormGroup>
                                     <Button color="success">Suivant</Button>
@@ -162,47 +211,110 @@ class Create extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h2>Créer un quizz <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h2>
-                                <Form onSubmit={this.handleSubmit} id="quizzform">
+                                <h2>
+                                    Créer un quizz{' '}
+                                    <Button
+                                        tag={Link}
+                                        to="/home"
+                                        size="sm"
+                                        className="float-right"
+                                    >
+                                        Retour
+                                    </Button>
+                                </h2>
+                                <Form
+                                    onSubmit={this.handleSubmit}
+                                    id="quizzform"
+                                >
                                     <FormGroup>
-                                        <Input type="text" name="question[name]" placeholder="Question" />
+                                        <Input
+                                            type="text"
+                                            name="question[name]"
+                                            placeholder="Question"
+                                        />
                                     </FormGroup>
 
                                     <hr />
                                     <FormGroup>
-                                        <Input type="number" name="question[time]" placeholder="Temps en secondes" />
+                                        <Input
+                                            type="number"
+                                            name="question[time]"
+                                            placeholder="Temps en secondes"
+                                        />
                                     </FormGroup>
 
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][0]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][0]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][0]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][0]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][1]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][1]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][1]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][1]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][2]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][2]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][2]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][2]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][3]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][3]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][3]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][3]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
-                                    
-                                    <Button color="secondary" className="mr-2" onClick={this.handleClick}>Sauvegarder et ajouter une question</Button>
+
+                                    <Button
+                                        color="secondary"
+                                        className="mr-2"
+                                        onClick={this.handleClick}
+                                    >
+                                        Sauvegarder et ajouter une question
+                                    </Button>
                                     <Button color="success">Terminer</Button>
                                 </Form>
                             </Col>

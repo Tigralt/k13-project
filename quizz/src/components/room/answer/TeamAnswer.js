@@ -7,7 +7,19 @@ class TeamAnswer extends Component {
             <div>
                 <Row className="pt-4 pb-4">
                     <Col xs="12">
-                        <Button color="danger" size="lg" block style={{ fontSize: "48px", lineHeight: "6em" }} onClick={this.props.handleBuzz} disabled={this.props.confirmed || !this.props.playing} outline={this.props.playing}>Buzz</Button>
+                        <Button
+                            color="danger"
+                            size="lg"
+                            block
+                            style={{ fontSize: '48px', lineHeight: '6em' }}
+                            onClick={this.props.handleBuzz}
+                            disabled={
+                                this.props.confirmed || !this.props.playing
+                            }
+                            outline={this.props.playing}
+                        >
+                            Buzz
+                        </Button>
                     </Col>
                 </Row>
             </div>

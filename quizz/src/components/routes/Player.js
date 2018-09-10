@@ -15,10 +15,12 @@ class Player extends Component {
         event.preventDefault();
         this.props.loading();
 
-        this.username = document.getElementsByName("name")[0].value;
+        this.username = document.getElementsByName('name')[0].value;
         fetch(CONFIG.API_URL + 'player/')
-            .then((response) => response.json())
-            .then((responseJson) => { this.handleApi(responseJson); });
+            .then(response => response.json())
+            .then(responseJson => {
+                this.handleApi(responseJson);
+            });
     }
 
     handleApi(players) {
@@ -34,29 +36,30 @@ class Player extends Component {
             fetch(CONFIG.API_URL + 'player/', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
+                    Accept: 'application/x-www-form-urlencoded',
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: formURLEncode({
-                    "name": this.username
-                })
-            }).then((response) => response.json())
-                .then((responseJson) => { this.loadSession(responseJson); });
-        }
-        else
-            this.loadSession(player);
+                    name: this.username,
+                }),
+            })
+                .then(response => response.json())
+                .then(responseJson => {
+                    this.loadSession(responseJson);
+                });
+        } else this.loadSession(player);
     }
 
     loadSession(player) {
         const session = {
-            "timeout": (new Date()).getTime() + 6 * 60 * 60 * 1000,
-            "username": player.name,
-            "id": player.id
-        }
+            timeout: new Date().getTime() + 6 * 60 * 60 * 1000,
+            username: player.name,
+            id: player.id,
+        };
 
-        localStorage.setItem("session", JSON.stringify(session));
+        localStorage.setItem('session', JSON.stringify(session));
 
-        this.props.history.push("/home");
+        this.props.history.push('/home');
         this.props.finished();
     }
 
@@ -67,7 +70,12 @@ class Player extends Component {
                     <Col sm="12" md={{ size: 6, offset: 3 }}>
                         <Form onSubmit={this.handleSubmit}>
                             <FormGroup>
-                                <Input type="text" name="name" placeholder="Nom d'utilisateur" maxLength="20"/>
+                                <Input
+                                    type="text"
+                                    name="name"
+                                    placeholder="Nom d'utilisateur"
+                                    maxLength="20"
+                                />
                             </FormGroup>
                             <Button>Se connecter</Button>
                         </Form>

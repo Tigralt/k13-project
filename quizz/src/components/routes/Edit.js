@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
-import faEdit from '@fortawesome/fontawesome-free-solid/faEdit'
-import faTrash from '@fortawesome/fontawesome-free-solid/faTrash'
-import FontAwesomeIcon from '@fortawesome/react-fontawesome'
-import { Row, Col, Button, Table, ButtonGroup, Form, FormGroup, Input } from 'reactstrap';
+import { Link } from 'react-router-dom';
+import faEdit from '@fortawesome/fontawesome-free-solid/faEdit';
+import faTrash from '@fortawesome/fontawesome-free-solid/faTrash';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import {
+    Row,
+    Col,
+    Button,
+    Table,
+    ButtonGroup,
+    Form,
+    FormGroup,
+    Input,
+} from 'reactstrap';
 import { formURLEncode } from './../../utils/Utils.js';
 import CONFIG from './../../utils/Config.js';
 
@@ -17,25 +26,31 @@ class Edit extends Component {
         this.handleEdit = this.handleEdit.bind(this);
         this.state = {
             quizz: null,
-            edit: null
+            edit: null,
         };
 
-        fetch(CONFIG.API_URL + 'quizz/' + this.props.match.params.id + '/nested')
-            .then((response) => response.json())
-            .then((responseJson) => { this.setState({ quizz: responseJson }); });
+        fetch(
+            CONFIG.API_URL + 'quizz/' + this.props.match.params.id + '/nested'
+        )
+            .then(response => response.json())
+            .then(responseJson => {
+                this.setState({ quizz: responseJson });
+            });
     }
 
     handleDelete(id) {
         this.props.loading();
-        fetch(CONFIG.API_URL + 'question/' + id, { method: 'DELETE'})
-            .then((response) => response.json())
-            .then((responseJson) => { this.props.finished(); });
+        fetch(CONFIG.API_URL + 'question/' + id, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(responseJson => {
+                this.props.finished();
+            });
     }
 
     findQuestion(id) {
         var question = null;
 
-        for(var index in this.state.quizz.questions) {
+        for (var index in this.state.quizz.questions) {
             let q = this.state.quizz.questions[index];
             if (q.id === id) {
                 question = q;
@@ -50,89 +65,107 @@ class Edit extends Component {
         const question = this.findQuestion(id);
 
         this.setState({ edit: id }, () => {
-            if (id < 0)
-                return;
+            if (id < 0) return;
 
-            const form = document.getElementById("quizzform");
-            const inputs = form.getElementsByTagName("INPUT");
+            const form = document.getElementById('quizzform');
+            const inputs = form.getElementsByTagName('INPUT');
 
-            inputs[0].setAttribute("value", question.text);
-            inputs[1].setAttribute("value", question.time);
-            for(let i=0; i<4; i++) {
-                inputs[(i+1)*2].setAttribute("value", question.answers[i].text);
-                inputs[(i+1)*2+1].setAttribute("value", question.answers[i].points);
+            inputs[0].setAttribute('value', question.text);
+            inputs[1].setAttribute('value', question.time);
+            for (let i = 0; i < 4; i++) {
+                inputs[(i + 1) * 2].setAttribute(
+                    'value',
+                    question.answers[i].text
+                );
+                inputs[(i + 1) * 2 + 1].setAttribute(
+                    'value',
+                    question.answers[i].points
+                );
             }
         });
     }
-    
+
     handleSubmit(event) {
         event.preventDefault();
         this.props.loading();
         const data = new FormData(event.target);
-        const _question = (this.state.edit > 0)? this.findQuestion(this.state.edit): null;
+        const _question =
+            this.state.edit > 0 ? this.findQuestion(this.state.edit) : null;
         const values = [];
 
-        for (let value of data.values())
-            values.push(value);
+        for (let value of data.values()) values.push(value);
 
         let question = {
             text: values[0],
             time: values[1],
-            quizz: this.state.quizz.id
+            quizz: this.state.quizz.id,
         };
 
         if (this.state.edit > 0) {
             fetch(CONFIG.API_URL + 'question/' + this.state.edit, {
                 method: 'PUT',
                 headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
+                    Accept: 'application/x-www-form-urlencoded',
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: formURLEncode(question)
-            }).then((response) => response.json())
-                .then((question) => {
-                    for (let i=0; i<4; i++) {
+                body: formURLEncode(question),
+            })
+                .then(response => response.json())
+                .then(question => {
+                    for (let i = 0; i < 4; i++) {
                         let answer = {
-                            text: values[(i+1)*2],
-                            points: values[(i+1)*2+1],
-                            question: question.id
+                            text: values[(i + 1) * 2],
+                            points: values[(i + 1) * 2 + 1],
+                            question: question.id,
                         };
-                        
-                        fetch(CONFIG.API_URL + 'answer/' + _question.answers[i].id, {
-                            method: 'PUT',
-                            headers: {
-                                'Accept': 'application/x-www-form-urlencoded',
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: formURLEncode(answer)
-                        }).then(() => { if (i >= 3) this.props.finished(); });
+
+                        fetch(
+                            CONFIG.API_URL +
+                                'answer/' +
+                                _question.answers[i].id,
+                            {
+                                method: 'PUT',
+                                headers: {
+                                    Accept: 'application/x-www-form-urlencoded',
+                                    'Content-Type':
+                                        'application/x-www-form-urlencoded',
+                                },
+                                body: formURLEncode(answer),
+                            }
+                        ).then(() => {
+                            if (i >= 3) this.props.finished();
+                        });
                     }
                 });
         } else {
             fetch(CONFIG.API_URL + 'question/', {
                 method: 'POST',
                 headers: {
-                    'Accept': 'application/x-www-form-urlencoded',
+                    Accept: 'application/x-www-form-urlencoded',
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: formURLEncode(question)
-            }).then((response) => response.json())
-                .then((question) => {
-                    for (let i=0; i<4; i++) {
+                body: formURLEncode(question),
+            })
+                .then(response => response.json())
+                .then(question => {
+                    for (let i = 0; i < 4; i++) {
                         let answer = {
-                            text: values[(i+1)*2],
-                            points: values[(i+1)*2+1],
-                            question: question.id
+                            text: values[(i + 1) * 2],
+                            points: values[(i + 1) * 2 + 1],
+                            question: question.id,
                         };
-                        
+
                         fetch(CONFIG.API_URL + 'answer/', {
                             method: 'POST',
                             headers: {
-                                'Accept': 'application/x-www-form-urlencoded',
-                                'Content-Type': 'application/x-www-form-urlencoded',
+                                Accept: 'application/x-www-form-urlencoded',
+                                'Content-Type':
+                                    'application/x-www-form-urlencoded',
                             },
-                            body: formURLEncode(answer)
-                        }).then(() => { if (i >= 3) this.props.finished(); });
+                            body: formURLEncode(answer),
+                        }).then(() => {
+                            if (i >= 3) this.props.finished();
+                        });
                     }
                 });
         }
@@ -147,46 +180,104 @@ class Edit extends Component {
                     <div>
                         <Row>
                             <Col sm={{ size: 6, offset: 3 }}>
-                                <h1>{ this.state.quizz.name } <Button onClick={() => {this.setState({edit: null});}} size="sm" className="float-right">Retour</Button></h1>
-                                <Form onSubmit={this.handleSubmit} id="quizzform">
+                                <h1>
+                                    {this.state.quizz.name}{' '}
+                                    <Button
+                                        onClick={() => {
+                                            this.setState({ edit: null });
+                                        }}
+                                        size="sm"
+                                        className="float-right"
+                                    >
+                                        Retour
+                                    </Button>
+                                </h1>
+                                <Form
+                                    onSubmit={this.handleSubmit}
+                                    id="quizzform"
+                                >
                                     <FormGroup>
-                                        <Input type="text" name="question[name]" placeholder="Question" />
+                                        <Input
+                                            type="text"
+                                            name="question[name]"
+                                            placeholder="Question"
+                                        />
                                     </FormGroup>
 
                                     <hr />
                                     <FormGroup>
-                                        <Input type="number" name="question[time]" placeholder="Temps en secondes" />
+                                        <Input
+                                            type="number"
+                                            name="question[time]"
+                                            placeholder="Temps en secondes"
+                                        />
                                     </FormGroup>
 
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][0]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][0]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][0]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][0]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][1]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][1]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][1]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][1]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][2]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][2]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][2]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][2]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
                                     <hr />
                                     <FormGroup>
-                                        <Input type="text" name="answer[name][3]" placeholder="Réponse" />
+                                        <Input
+                                            type="text"
+                                            name="answer[name][3]"
+                                            placeholder="Réponse"
+                                        />
                                     </FormGroup>
                                     <FormGroup>
-                                        <Input type="number" name="answer[points][3]" placeholder="Nombre de points" min="0"/>
+                                        <Input
+                                            type="number"
+                                            name="answer[points][3]"
+                                            placeholder="Nombre de points"
+                                            min="0"
+                                        />
                                     </FormGroup>
-                                    
+
                                     <Button color="success">Sauvegarder</Button>
                                 </Form>
                             </Col>
@@ -197,36 +288,79 @@ class Edit extends Component {
             return (
                 <div>
                     <Row>
-                        <Col sm="12" md={{ size: 6, offset: 3 }} className="pt-4">
-                            <h1>{ this.state.quizz.name } <Button tag={Link} to="/home" size="sm" className="float-right">Retour</Button></h1>
+                        <Col
+                            sm="12"
+                            md={{ size: 6, offset: 3 }}
+                            className="pt-4"
+                        >
+                            <h1>
+                                {this.state.quizz.name}{' '}
+                                <Button
+                                    tag={Link}
+                                    to="/home"
+                                    size="sm"
+                                    className="float-right"
+                                >
+                                    Retour
+                                </Button>
+                            </h1>
                             <Table>
                                 <thead>
                                     <tr>
                                         <th>Question</th>
                                         <th width="1%">Actions</th>
                                     </tr>
-                                    {this.state.quizz.questions.map((question) =>
-                                        <tr key={question.id}>
-                                            <td className="align-middle">{question.text}</td>
-                                            <td>
-                                                <ButtonGroup size="sm">
-                                                    <Button onClick={() => this.handleEdit(question.id)}><FontAwesomeIcon icon={faEdit} /></Button>
-                                                    <Button onClick={() => this.handleDelete(question.id)}><FontAwesomeIcon icon={faTrash} /></Button>
-                                                </ButtonGroup>
-                                            </td>
-                                        </tr>
+                                    {this.state.quizz.questions.map(
+                                        question => (
+                                            <tr key={question.id}>
+                                                <td className="align-middle">
+                                                    {question.text}
+                                                </td>
+                                                <td>
+                                                    <ButtonGroup size="sm">
+                                                        <Button
+                                                            onClick={() =>
+                                                                this.handleEdit(
+                                                                    question.id
+                                                                )
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faEdit}
+                                                            />
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() =>
+                                                                this.handleDelete(
+                                                                    question.id
+                                                                )
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faTrash}
+                                                            />
+                                                        </Button>
+                                                    </ButtonGroup>
+                                                </td>
+                                            </tr>
+                                        )
                                     )}
                                 </thead>
                             </Table>
 
-                            <Button onClick={() => this.handleEdit(-1)} color="secondary">Ajouter une question</Button>
+                            <Button
+                                onClick={() => this.handleEdit(-1)}
+                                color="secondary"
+                            >
+                                Ajouter une question
+                            </Button>
                         </Col>
                     </Row>
                 </div>
-            )
+            );
         }
 
-        return (<div></div>)
+        return <div />;
     }
 }
 export default Edit;
