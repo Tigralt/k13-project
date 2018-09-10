@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Row, Col, Alert, Progress } from 'reactstrap';
-import ReactLoading from 'react-loading';
-import PlayerScore from "./../score/PlayerScore";
+import Loading from "../Loading";
+import Score from "./../screen/Score";
+import QuestionAnswer from "./../screen/QuestionAnswer";
 import CONFIG from './../../utils/Config.js';
 
 class Screen extends Component {
@@ -40,8 +40,12 @@ class Screen extends Component {
         fetch(CONFIG.API_URL + 'room/quizz/' + this.state.quizz.id)
             .then((response) => response.json())
             .then((room) => {
-                if (room.length === 0)
+                if (room.length === 0) {
+                    setTimeout(() => {
+                        this.joinRoom();
+                    }, 1000);
                     return;
+                }
                 
                 const conn = new WebSocket(CONFIG.SERVER_URL);
                 conn.onopen = (e) => {
@@ -130,7 +134,7 @@ class Screen extends Component {
                 });
 
                 this.setState({
-                    players_old: this.state.players,
+                    players_old: this.state.players == null? null: this.state.players,
                     players: players,
                     display_step: 1
                 }, () => {
@@ -188,119 +192,36 @@ class Screen extends Component {
     }
 
     render() {
-        if (this.state.loading) {
-            return (
-                <div>
-                    <Row>
-                        <Col xs="12">
-                            <ReactLoading type="spin" color="#333333" className="mx-auto"/>
-                        </Col>
-                    </Row>
-                </div>
-            )
-        }
+        if (this.state.loading) return (<div><Loading /></div>);
 
         // Display score
         if (this.state.display_step >= 2) {
-            var display = ["er"];
-            for (let i=0; i<this.state.players.length; i++)
-                display.push("ème");
-            const final = parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length? "final": "";
-
             return (
                 <div>
-                    <Row>
-                        <Col xs="12">
-                            <h1 className="text-center">Tableau des scores {final}</h1>
-                        </Col>
-                    </Row>
-                    <Row>
-                        {this.state.players.map((player, index) =>
-                        <Col xs="6">
-                            <Alert color="dark" className="d-flex" style={{ lineHeight: "48px" }}>
-                                <big className="flex-fill text-left" style={{fontSize:"48px"}}>
-                                    {index+1}{display[index]}
-                                </big>
-                                <div style={{ fontSize: "24px" }} className="text-center flex-fill">{player.name}</div>
-                                <PlayerScore score={parseInt(player.score, 10)} old={this.state.players_old === null?null:parseInt(this.state.players_old[index].score, 10)} step={this.state.display_step-2}/>
-                            </Alert>
-                        </Col>
-                        )}
-                    </Row>
+                    <Score 
+                        players={this.state.players}
+                        playersOld={this.state.players_old}
+                        step={parseInt(this.state.room.step, 10)}
+                        quizzLength={this.state.quizz.questions.length}
+                        displayStep={this.state.display_step}
+                        />
                 </div>
-            )
+            );
         }
 
-        // Load animation when time limit
-        var bounce = [];
-        var slide = [];
-        for (let i=0; i<4; i++) {
-            bounce.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) <= 0 && this.state.display_step === 1?"bounce-out":"");
-            slide.push(parseInt(this.state.quizz.questions[this.state.room.step].answers[i].points, 10) > 0 && this.state.display_step === 1 && this.state.quizz.type === "single"?"fade-in-left":"");
-        }
-
-        // Display question & answers
+        // Display Question & Answers
         return (
             <div>
-                { this.state.buzzed.length > 0 ? <div className="buzzed">{ this.state.buzzed[0] }</div> : null }
-                <Row className="pt-4 pb-4">
-                    <Col xs="12" className="text-center">
-                        <h1>{this.handleText(this.state.quizz.questions[this.state.room.step].text, 0.5)}</h1>
-                    </Col>
-                </Row>
-                <Row className="pt-4 pb-4">
-                    <Col xs="12" className="text-center">
-                        <Progress animated color={this.state.color} value={Math.floor((this.state.time * 100) / this.state.quizz.questions[this.state.room.step].time)} />
-                    </Col>
-                </Row>
-                <Row className="pt-4 pb-3">
-                    <Col xs="6" className="text-center">
-                        <Alert color="info" className={bounce[0] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>A</big>
-                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[0].text)}</div>
-                            <div className={slide[0] + " ribbon"}>
-                                <div className="text">
-                                    {this.state.quizz.questions[this.state.room.step].answers[0].points}pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                    <Col xs="6" className="text-center">
-                        <Alert color="success" className={bounce[2] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>C</big>
-                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[2].text)}</div>
-                            <div className={slide[2] + " ribbon"}>
-                                <div className="text">
-                                    {this.state.quizz.questions[this.state.room.step].answers[2].points}pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                </Row>
-                <Row className="pb-4">
-                    <Col xs="6" className="text-center">
-                        <Alert color="danger" className={bounce[1] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>B</big>
-                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[1].text)}</div>
-                            <div className={slide[1] + " ribbon"}>
-                                <div className="text">
-                                    {this.state.quizz.questions[this.state.room.step].answers[1].points}pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                    <Col xs="6" className="text-center">
-                        <Alert color="warning" className={bounce[3] + " h-100 d-flex"} style={{ lineHeight: "48px" }}>
-                            <big className="mr-4 flex-shrink-1" style={{fontSize:"48px"}}>D</big>
-                            <div className="flex-fill" style={{ fontSize: "24px" }}>{this.handleText(this.state.quizz.questions[this.state.room.step].answers[3].text)}</div>
-                            <div className={slide[3] + " ribbon"}>
-                                <div className="text">
-                                    {this.state.quizz.questions[this.state.room.step].answers[3].points}pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                </Row>
+                <QuestionAnswer
+                    question={this.state.quizz.questions[this.state.room.step]}
+                    displayStep={this.state.display_step}
+                    quizzType={this.state.quizz.type}
+                    time={this.state.time}
+                    color={this.state.color}
+                    buzzed={this.state.buzzed.length > 0}
+                    buzzName={this.state.buzzed[0]}
+                    handleText={this.handleText}
+                    />
             </div>
         );
     }

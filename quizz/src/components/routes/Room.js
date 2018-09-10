@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, Form, FormGroup, Input, Row, Col, Jumbotron } from 'reactstrap';
-import { Link } from "react-router-dom";
-import ReactLoading from 'react-loading';
+import Loading from "../Loading";
+import Player from "../room/Player";
+import Controller from "../room/Controller";
+import JoinRoom from "../room/JoinRoom";
 import { formURLEncode } from './../../utils/Utils.js';
 import CONFIG from './../../utils/Config.js';
 
@@ -283,151 +284,41 @@ class Room extends Component {
     }
 
     render() {
-        if (this.state.loading) {
-            return (
-                <div>
-                    <Row>
-                        <Col xs="12" md={{ size: 6, offset: 3 }}>
-                            <ReactLoading type="spin" color="#333333" className="mx-auto"/>
-                        </Col>
-                    </Row>
-                </div>
-            )
-        }
+        if (this.state.loading) return (<div><Loading /></div>);
 
         if (this.state.room !== null) {
-
             // Owner control panel
             if (this.state.owner) {
-                if (this.state.buzzed.length > 0) { // Buzzer mgmt
-                    if (this.state.scoring) { // Give score to the buzzed team
-                        return (
-                            <div>
-                                <Row className="pt-4">
-                                    <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                        <Jumbotron><h1 className="text-center">{ this.state.buzzed[0] }</h1></Jumbotron>
-                                    </Col>
-                                </Row>
-                                <Row className="pt-1">
-                                    <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                        <Form onSubmit={this.handleAcceptBuzz}>
-                                            <FormGroup>
-                                                <Input placeholder="Score" type="number" name="score"/>
-                                            </FormGroup>
-                                            <Button>Valider</Button>
-                                        </Form>
-                                        
-                                    </Col>
-                                </Row>
-                            </div>
-                        );
-                    }
-
-                    // Accept or refuse buzz answer
-                    return (
-                        <div>
-                            <Row className="pt-4">
-                                <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                    <Jumbotron><h1 className="text-center">{ this.state.buzzed[0] }</h1></Jumbotron>
-                                </Col>
-                            </Row>
-                            <Row>
-                                <Col xs="6" md={{ size: 3, offset: 3 }}>
-                                    <Button color="success" size="lg" block outline onClick={this.handleScoreBuzz}>Accepter</Button>
-                                </Col>
-                                <Col xs="6" md={{ size: 3, offset: 3 }}>
-                                    <Button color="danger" size="lg" block outline onClick={this.handleCancelBuzz}>Refuser</Button>
-                                </Col>
-                            </Row>
-                        </div>
-                    );
-                } else { // Quizz mgmt
-                    return (
-                        <div>
-                            <Row>
-                                <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                    <Button color="success" size="lg" block disabled={this.state.playing} onClick={this.handleStart}>Démarrer la question</Button>
-                                </Col>
-                            </Row>
-                            <Row className="pt-4">
-                                <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                    <Button size="lg" block onClick={this.handleNext} disabled={parseInt(this.state.room.step, 10)+1 >= this.state.quizz.questions.length}>Question suivante</Button>
-                                </Col>
-                            </Row>
-
-                            <Row className="pt-4">
-                                <Col xs="12" md={{ size: 6, offset: 3 }}>
-                                    <Button color="danger" size="lg" block onClick={this.handleQuit}>Arrêter le quizz</Button>
-                                </Col>
-                            </Row>
-                        </div>
-                    );
-                }
+                return (
+                    <div>
+                        <Controller buzzed={this.state.buzzed.length > 0}
+                                    name={this.state.buzzed[0]}
+                                    scoring={this.state.scoring}
+                                    playing={this.state.playing}
+                                    step={parseInt(this.state.room.step, 10)}
+                                    quizzLength={this.state.quizz.questions.length}
+                                    handleStart={this.handleStart}
+                                    handleNext={this.handleNext}
+                                    handleQuit={this.handleQuit}
+                                    handleAcceptBuzz={this.handleAcceptBuzz}
+                                    handleScoreBuzz={this.handleScoreBuzz}
+                                    handleCancelBuzz={this.handleCancelBuzz}
+                                    />
+                    </div>
+                )
             }
 
-            switch(this.state.quizz.type) {
-                case "single":
-                    // Single player answer panel
-                    return (
-                        <div>
-                            <Row className="pt-4 pb-4">
-                                <Col xs="6">
-                                    <Button color="info" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(0)} active={this.state.selected.includes(0)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>A</Button>
-                                </Col>
-                                <Col xs="6">
-                                    <Button color="success" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(2)} active={this.state.selected.includes(2)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>C</Button>
-                                </Col>
-                            </Row>
-                            <Row className="pt-1 pb-4">
-                                <Col xs="6">
-                                    <Button color="danger" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(1)} active={this.state.selected.includes(1)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>B</Button>
-                                </Col>
-                                <Col xs="6">
-                                    <Button color="warning" size="lg" block style={{ fontSize: "48px" }} onClick={() => this.handleChoice(3)} active={this.state.selected.includes(3)} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>D</Button>
-                                </Col>
-                            </Row>
-                            <Row className="pt-4 pb-4">
-                                <Col xs="12">
-                                    <Button color="secondary" size="lg" block style={{ fontSize: "48px" }} onClick={this.handleConfirm} disabled={this.state.confirmed}>Valider</Button>
-                                </Col>
-                            </Row>
-                        </div>
-                    );
-
-                case "team":
-                    // Team answer panel
-                    return (
-                        <div>
-                            <Row className="pt-4 pb-4">
-                                <Col xs="12">
-                                    <Button color="danger" size="lg" block style={{ fontSize: "48px", lineHeight: "6em" }} onClick={this.handleBuzz} disabled={this.state.confirmed || !this.state.playing} outline={this.state.playing}>Buzz</Button>
-                                </Col>
-                            </Row>
-                        </div>
-                    )
-
-                default:
-                    return (<div>Erreur de type de quizz</div>);
-            }
+            return (
+                <div>
+                    <Player handleChoice={this.handleChoice} handleConfirm={this.handleConfirm} handleBuzz={this.handleBuzz} selected={this.state.selected} confirmed={this.state.confirmed} playing={this.state.playing} quizz={this.state.quizz.type}/>
+                </div>
+            );
         }
 
         // Join room form
         return (
             <div>
-                <Row>
-                    <Col xs="12" md={{ size: 6, offset: 3 }}>
-                        <Form onSubmit={this.handleSubmit} className="clearfix">
-                            <FormGroup>
-                                <Input type="text" name="name" placeholder="Nom du quizz" />
-                            </FormGroup>
-                            {/* <FormGroup>
-                                <Input type="password" name="password" placeholder="Mot de passe" />
-                            </FormGroup> */}
-                            <Button className="float-left">Rejoindre</Button>
-                            <Button tag={Link} to="/home" className="float-right">Retour</Button>
-                        </Form>
-                    </Col>
-                </Row>
+                <JoinRoom handleSubmit={this.handleSubmit} />
             </div>
         )
     }
