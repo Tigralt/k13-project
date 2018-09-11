@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import openSocket from 'socket.io-client';
 import Loading from '../Loading';
 import Score from './../screen/Score';
 import QuestionAnswer from './../screen/QuestionAnswer';
@@ -49,66 +50,55 @@ class Screen extends Component {
                     return;
                 }
 
-                const conn = new WebSocket(CONFIG.SERVER_URL);
-                conn.onopen = e => {
-                    conn.send(`joinRoom|${room[0].id}|screen`);
-                };
-                conn.onmessage = e => {
-                    console.log(e.data);
-                    switch (e.data) {
-                        // Question
-                        case 'startQuestion':
-                            this.setState({ playing: true });
-                            break;
-                        case 'pauseQuestion':
-                            this.setState({ playing: false });
-                            break;
-                        case 'nextQuestion':
-                            this.handleNext();
-                            break;
+                const socket = openSocket(CONFIG.SERVER_URL);
+                socket.emit('joinRoom', room[0].id, 'screen');
 
-                        // Room
-                        case 'quitRoom':
-                            this.state.update.close();
-                            this.props.history.push('/home');
-                            break;
+                socket.on('startQuestion', () => {
+                    this.setState({ playing: true });
+                });
 
-                        // Team
-                        case 'acceptBuzzQuestion':
-                            this.setState({
-                                buzzed: [],
-                                time: this.state.quizz.questions[
-                                    this.state.room.step
-                                ].time,
-                                playing: false,
-                            });
-                            this.handleScore();
-                            break;
-                        case 'cancelBuzzQuestion':
-                            const buzzed = this.state.buzzed.splice(
-                                1,
-                                this.state.buzzed.length
-                            );
-                            this.setState({
-                                buzzed: buzzed,
-                                playing: buzzed.length === 0,
-                            });
-                            break;
-                        default:
-                            if (e.data.indexOf('buzzQuestion') >= 0) {
-                                this.setState({
-                                    buzzed: this.state.buzzed.concat(
-                                        e.data.split('|')[1]
-                                    ),
-                                });
-                            }
-                    }
-                };
+                socket.on('pauseQuestion', () => {
+                    this.setState({ playing: false });
+                });
+
+                socket.on('nextQuestion', () => {
+                    this.handleNext();
+                });
+
+                socket.on('quitRoom', () => {
+                    this.state.update.close();
+                    this.props.history.push('/home');
+                });
+
+                socket.on('acceptBuzzQuestion', () => {
+                    this.setState({
+                        buzzed: [],
+                        time: this.state.quizz.questions[this.state.room.step]
+                            .time,
+                        playing: false,
+                    });
+                    this.handleScore();
+                });
+
+                socket.on('cancelBuzzQuestion', () => {
+                    const buzzed = this.state.buzzed.splice(
+                        1,
+                        this.state.buzzed.length
+                    );
+                    this.setState({
+                        buzzed: buzzed,
+                        playing: buzzed.length === 0,
+                    });
+                });
+
+                socket.on('buzzQuestion', player => {
+                    this.setState({ buzzed: this.state.buzzed.concat(player) });
+                });
 
                 this.setState({
                     room: room[0],
                     loading: false,
-                    update: conn,
+                    update: socket,
                 });
             });
     }
@@ -146,7 +136,7 @@ class Screen extends Component {
 
         // Time limit
         if (limit >= 100) {
-            this.state.update.send(`stopQuestion|${this.state.room.id}`);
+            this.state.update.emit('stopQuestion', this.state.room.id);
             this.handleScore();
         }
     }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import openSocket from 'socket.io-client';
 import Loading from '../Loading';
 import Player from '../room/Player';
 import Controller from '../room/Controller';
@@ -123,53 +124,44 @@ class Room extends Component {
     }
 
     updateRoom() {
-        const conn = new WebSocket(CONFIG.SERVER_URL);
-        conn.onopen = e => {
-            conn.send(
-                `joinRoom|${this.state.room.id}|${
-                    this.state.owner ? 'controller' : 'player'
-                }`
-            );
-        };
-        conn.onmessage = e => {
-            console.log(e.data);
-            switch (e.data) {
-                // Room
-                case 'quitRoom':
-                    this.state.update.close();
-                    this.props.history.push('/home');
-                    break;
+        const socket = openSocket(CONFIG.SERVER_URL);
+        socket.emit(
+            'joinRoom',
+            this.state.room.id,
+            this.state.owner ? 'controller' : 'player'
+        );
 
-                // Question
-                case 'startQuestion':
-                    this.setState({ playing: true });
-                    break;
-                case 'stopQuestion':
-                case 'pauseQuestion':
-                    this.setState({ playing: false });
-                    break;
-                case 'nextQuestion':
-                    this.setState({
-                        playing: false,
-                        confirmed: false,
-                        selected: [],
-                    });
-                    break;
+        socket.on('quitRoom', () => {
+            this.state.update.close();
+            this.props.history.push('/home');
+        });
 
-                // Team
-                default:
-                    if (e.data.indexOf('buzzQuestion') >= 0) {
-                        this.setState({
-                            buzzed: this.state.buzzed.concat(
-                                e.data.split('|')[1]
-                            ),
-                        });
-                    }
-            }
-        };
+        socket.on('startQuestion', () => {
+            this.setState({ playing: true });
+        });
+
+        socket.on('pauseQuestion', () => {
+            this.setState({ playing: false });
+        });
+
+        socket.on('stopQuestion', () => {
+            this.setState({ playing: false });
+        });
+
+        socket.on('nextQuestion', () => {
+            this.setState({
+                playing: false,
+                confirmed: false,
+                selected: [],
+            });
+        });
+
+        socket.on('buzzQuestion', player => {
+            this.setState({ buzzed: this.state.buzzed.concat(player) });
+        });
 
         this.setState({
-            update: conn,
+            update: socket,
         });
     }
 
@@ -181,10 +173,10 @@ class Room extends Component {
             })
                 .then(response => response.json())
                 .then(responseJson => {
-                    this.state.update.send(
-                        `quitRoom|${this.state.room.id}|${
-                            this.state.owner ? 'controller' : 'player'
-                        }`
+                    this.state.update.emit(
+                        'quitRoom',
+                        this.state.room.id,
+                        this.state.owner ? 'controller' : 'player'
                     );
                     this.state.update.close();
                     this.props.history.push('/home');
@@ -208,7 +200,7 @@ class Room extends Component {
     }
 
     handleStart(event) {
-        this.state.update.send(`startQuestion|${this.state.room.id}`);
+        this.state.update.emit('startQuestion', this.state.room.id);
         this.setState({ playing: true });
     }
 
@@ -225,7 +217,7 @@ class Room extends Component {
         })
             .then(response => response.json())
             .then(room => {
-                this.state.update.send(`nextQuestion|${this.state.room.id}`);
+                this.state.update.emit('nextQuestion', this.state.room.id);
                 this.setState({
                     room: room,
                     playing: false,
@@ -285,8 +277,10 @@ class Room extends Component {
 
     handleBuzz() {
         const session = JSON.parse(localStorage.getItem('session'));
-        this.state.update.send(
-            `playerBuzzQuestion|${this.state.room.id}|${session.username}`
+        this.state.update.emit(
+            'playerBuzzQuestion',
+            this.state.room.id,
+            session.username
         );
         this.setState({ confirmed: true });
     }
@@ -315,8 +309,9 @@ class Room extends Component {
                         score: parseInt(player.score, 10) + parseInt(score, 10),
                     }),
                 }).then(() => {
-                    this.state.update.send(
-                        `acceptBuzzQuestion|${this.state.room.id}`
+                    this.state.update.emit(
+                        'acceptBuzzQuestion',
+                        this.state.room.id
                     );
                     this.setState({ scoring: false, buzzed: [] });
                 });
@@ -324,7 +319,7 @@ class Room extends Component {
     }
 
     handleCancelBuzz() {
-        this.state.update.send(`cancelBuzzQuestion|${this.state.room.id}`);
+        this.state.update.emit('cancelBuzzQuestion', this.state.room.id);
         this.setState({
             buzzed: this.state.buzzed.splice(1, this.state.buzzed.length),
         });
