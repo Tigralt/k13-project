@@ -188,6 +188,7 @@ class Screen extends Component {
             {
                 display_step: 0,
                 loading: true,
+                playing: false,
             },
             () => {
                 fetch(CONFIG.API_URL + 'room/quizz/' + this.state.quizz.id)
@@ -198,6 +199,7 @@ class Screen extends Component {
                         this.setState({
                             room: room[0],
                             loading: false,
+                            time: 0,
                         });
                     });
             }
