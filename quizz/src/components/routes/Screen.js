@@ -217,7 +217,7 @@ class Screen extends Component {
 
             if (imgHeight <= 0) return 'Erreur: écran trop petit';
 
-            return <img src={url} height={imgHeight + 'px'} alt="" />;
+            return <img src={url} style={{maxHeight: imgHeight + 'px', maxWidth: "100%"}} alt="" />;
         }
     }
 
