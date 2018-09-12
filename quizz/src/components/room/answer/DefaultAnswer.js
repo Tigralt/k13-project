@@ -24,24 +24,6 @@ class DefaultAnswer extends Component {
                     </Col>
                     <Col xs="6">
                         <Button
-                            color="success"
-                            size="lg"
-                            block
-                            style={{ fontSize: '48px' }}
-                            onClick={() => this.props.handleChoice(2)}
-                            active={this.props.selected.includes(2)}
-                            disabled={
-                                this.props.confirmed || !this.props.playing
-                            }
-                            outline={this.props.playing}
-                        >
-                            C
-                        </Button>
-                    </Col>
-                </Row>
-                <Row className="pt-1 pb-4">
-                    <Col xs="6">
-                        <Button
                             color="danger"
                             size="lg"
                             block
@@ -54,6 +36,24 @@ class DefaultAnswer extends Component {
                             outline={this.props.playing}
                         >
                             B
+                        </Button>
+                    </Col>
+                </Row>
+                <Row className="pt-1 pb-4">
+                    <Col xs="6">
+                        <Button
+                            color="success"
+                            size="lg"
+                            block
+                            style={{ fontSize: '48px' }}
+                            onClick={() => this.props.handleChoice(2)}
+                            active={this.props.selected.includes(2)}
+                            disabled={
+                                this.props.confirmed || !this.props.playing
+                            }
+                            outline={this.props.playing}
+                        >
+                            C
                         </Button>
                     </Col>
                     <Col xs="6">

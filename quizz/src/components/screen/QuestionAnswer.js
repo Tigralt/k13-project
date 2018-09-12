@@ -96,22 +96,22 @@ class QuestionAnswer extends Component {
                         slide[0]
                     )}
                     {this.displayAnswer(
-                        this.props.question.answers[2].text,
-                        this.props.question.answers[2].points,
-                        'C',
-                        'success',
-                        bounce[2],
-                        slide[2]
-                    )}
-                </Row>
-                <Row className="pb-4">
-                    {this.displayAnswer(
                         this.props.question.answers[1].text,
                         this.props.question.answers[1].points,
                         'B',
                         'danger',
                         bounce[1],
                         slide[1]
+                    )}
+                </Row>
+                <Row className="pb-4">
+                    {this.displayAnswer(
+                        this.props.question.answers[2].text,
+                        this.props.question.answers[2].points,
+                        'C',
+                        'success',
+                        bounce[2],
+                        slide[2]
                     )}
                     {this.displayAnswer(
                         this.props.question.answers[3].text,
