@@ -2,6 +2,47 @@ import React, { Component } from 'react';
 import { Row, Col, Alert, Progress } from 'reactstrap';
 
 class QuestionAnswer extends Component {
+    constructor(props) {
+        super(props);
+
+        this.displayAnswer = this.displayAnswer.bind(this);
+    }
+
+    displayAnswer(text, points, letter, color, bounce, slide) {
+        if (text === "") return null;
+
+        return (
+            <Col xs="6" className="text-center">
+                <Alert
+                    color={color}
+                    className={bounce + ' h-100 d-flex'}
+                    style={{ lineHeight: '48px' }}
+                >
+                    <big
+                        className="mr-4 flex-shrink-1"
+                        style={{ fontSize: '48px' }}
+                    >
+                        { letter }
+                    </big>
+                    <div
+                        className="flex-fill"
+                        style={{ fontSize: '24px' }}
+                    >
+                        {this.props.handleText(
+                            text
+                        )}
+                    </div>
+                    <div className={slide + ' ribbon'}>
+                        <div className="text">
+                            {points}
+                            pt
+                        </div>
+                    </div>
+                </Alert>
+            </Col>
+        );
+    }
+
     render() {
         // Load animation when time limit
         var bounce = [];
@@ -51,120 +92,12 @@ class QuestionAnswer extends Component {
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-3">
-                    <Col xs="6" className="text-center">
-                        <Alert
-                            color="info"
-                            className={bounce[0] + ' h-100 d-flex'}
-                            style={{ lineHeight: '48px' }}
-                        >
-                            <big
-                                className="mr-4 flex-shrink-1"
-                                style={{ fontSize: '48px' }}
-                            >
-                                A
-                            </big>
-                            <div
-                                className="flex-fill"
-                                style={{ fontSize: '24px' }}
-                            >
-                                {this.props.handleText(
-                                    this.props.question.answers[0].text
-                                )}
-                            </div>
-                            <div className={slide[0] + ' ribbon'}>
-                                <div className="text">
-                                    {this.props.question.answers[0].points}
-                                    pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                    <Col xs="6" className="text-center">
-                        <Alert
-                            color="success"
-                            className={bounce[2] + ' h-100 d-flex'}
-                            style={{ lineHeight: '48px' }}
-                        >
-                            <big
-                                className="mr-4 flex-shrink-1"
-                                style={{ fontSize: '48px' }}
-                            >
-                                C
-                            </big>
-                            <div
-                                className="flex-fill"
-                                style={{ fontSize: '24px' }}
-                            >
-                                {this.props.handleText(
-                                    this.props.question.answers[2].text
-                                )}
-                            </div>
-                            <div className={slide[2] + ' ribbon'}>
-                                <div className="text">
-                                    {this.props.question.answers[2].points}
-                                    pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
+                    { this.displayAnswer(this.props.question.answers[0].text, this.props.question.answers[0].points, "A", "info", bounce[0], slide[0]) }
+                    { this.displayAnswer(this.props.question.answers[2].text, this.props.question.answers[2].points, "C", "success", bounce[2], slide[2]) }
                 </Row>
                 <Row className="pb-4">
-                    <Col xs="6" className="text-center">
-                        <Alert
-                            color="danger"
-                            className={bounce[1] + ' h-100 d-flex'}
-                            style={{ lineHeight: '48px' }}
-                        >
-                            <big
-                                className="mr-4 flex-shrink-1"
-                                style={{ fontSize: '48px' }}
-                            >
-                                B
-                            </big>
-                            <div
-                                className="flex-fill"
-                                style={{ fontSize: '24px' }}
-                            >
-                                {this.props.handleText(
-                                    this.props.question.answers[1].text
-                                )}
-                            </div>
-                            <div className={slide[1] + ' ribbon'}>
-                                <div className="text">
-                                    {this.props.question.answers[1].points}
-                                    pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
-                    <Col xs="6" className="text-center">
-                        <Alert
-                            color="warning"
-                            className={bounce[3] + ' h-100 d-flex'}
-                            style={{ lineHeight: '48px' }}
-                        >
-                            <big
-                                className="mr-4 flex-shrink-1"
-                                style={{ fontSize: '48px' }}
-                            >
-                                D
-                            </big>
-                            <div
-                                className="flex-fill"
-                                style={{ fontSize: '24px' }}
-                            >
-                                {this.props.handleText(
-                                    this.props.question.answers[3].text
-                                )}
-                            </div>
-                            <div className={slide[3] + ' ribbon'}>
-                                <div className="text">
-                                    {this.props.question.answers[3].points}
-                                    pt
-                                </div>
-                            </div>
-                        </Alert>
-                    </Col>
+                    { this.displayAnswer(this.props.question.answers[1].text, this.props.question.answers[1].points, "B", "danger", bounce[1], slide[1]) }
+                    { this.displayAnswer(this.props.question.answers[3].text, this.props.question.answers[3].points, "D", "warning", bounce[3], slide[3]) }
                 </Row>
             </div>
         );
