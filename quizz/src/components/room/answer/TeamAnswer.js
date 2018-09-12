@@ -16,7 +16,7 @@ class TeamAnswer extends Component {
                             disabled={
                                 this.props.confirmed || !this.props.playing
                             }
-                            outline={this.props.playing}
+                            outline={this.props.playing || !this.props.confirmed}
                         >
                             Buzz
                         </Button>
