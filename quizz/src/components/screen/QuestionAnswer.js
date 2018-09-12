@@ -9,7 +9,7 @@ class QuestionAnswer extends Component {
     }
 
     displayAnswer(text, points, letter, color, bounce, slide) {
-        if (text === "") return null;
+        if (text === '') return null;
 
         return (
             <Col xs="6" className="text-center">
@@ -22,15 +22,10 @@ class QuestionAnswer extends Component {
                         className="mr-4 flex-shrink-1"
                         style={{ fontSize: '48px' }}
                     >
-                        { letter }
+                        {letter}
                     </big>
-                    <div
-                        className="flex-fill"
-                        style={{ fontSize: '24px' }}
-                    >
-                        {this.props.handleText(
-                            text
-                        )}
+                    <div className="flex-fill" style={{ fontSize: '24px' }}>
+                        {this.props.handleText(text)}
                     </div>
                     <div className={slide + ' ribbon'}>
                         <div className="text">
@@ -92,12 +87,40 @@ class QuestionAnswer extends Component {
                     </Col>
                 </Row>
                 <Row className="pt-4 pb-3">
-                    { this.displayAnswer(this.props.question.answers[0].text, this.props.question.answers[0].points, "A", "info", bounce[0], slide[0]) }
-                    { this.displayAnswer(this.props.question.answers[2].text, this.props.question.answers[2].points, "C", "success", bounce[2], slide[2]) }
+                    {this.displayAnswer(
+                        this.props.question.answers[0].text,
+                        this.props.question.answers[0].points,
+                        'A',
+                        'info',
+                        bounce[0],
+                        slide[0]
+                    )}
+                    {this.displayAnswer(
+                        this.props.question.answers[2].text,
+                        this.props.question.answers[2].points,
+                        'C',
+                        'success',
+                        bounce[2],
+                        slide[2]
+                    )}
                 </Row>
                 <Row className="pb-4">
-                    { this.displayAnswer(this.props.question.answers[1].text, this.props.question.answers[1].points, "B", "danger", bounce[1], slide[1]) }
-                    { this.displayAnswer(this.props.question.answers[3].text, this.props.question.answers[3].points, "D", "warning", bounce[3], slide[3]) }
+                    {this.displayAnswer(
+                        this.props.question.answers[1].text,
+                        this.props.question.answers[1].points,
+                        'B',
+                        'danger',
+                        bounce[1],
+                        slide[1]
+                    )}
+                    {this.displayAnswer(
+                        this.props.question.answers[3].text,
+                        this.props.question.answers[3].points,
+                        'D',
+                        'warning',
+                        bounce[3],
+                        slide[3]
+                    )}
                 </Row>
             </div>
         );
