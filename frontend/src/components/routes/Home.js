@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlay from '@fortawesome/fontawesome-free-solid/faPlay';
-import faEdit from '@fortawesome/fontawesome-free-solid/faEdit';
-import faTrash from '@fortawesome/fontawesome-free-solid/faTrash';
-import faTv from '@fortawesome/fontawesome-free-solid/faTv';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay, faEdit, faTrash, faTv } from '@fortawesome/free-solid-svg-icons';
 import { Row, Col, Button, Table, ButtonGroup } from 'reactstrap';
 import CONFIG from './../../utils/Config.js';
 

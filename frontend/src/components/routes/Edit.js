@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import faEdit from '@fortawesome/fontawesome-free-solid/faEdit';
-import faTrash from '@fortawesome/fontawesome-free-solid/faTrash';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
     Row,
     Col,
